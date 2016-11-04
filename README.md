@@ -31,10 +31,9 @@ of correlation, whereas the blue lines indicate anticorrelation.
 ## Running
 
 You will need to download the data and either extract to a 'data' folder
-in the current directory, or change the locations in the scripts.
-
-Once this is done, please follow the commands below to run the main scripts to
-reproduce the results.
+in the current directory, or change the locations in the scripts. Once this is
+done, please follow the commands below to run the main scripts
+**to reproduce the results**.
 
 To generate the EDA figures:
 ```
