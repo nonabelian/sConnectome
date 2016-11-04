@@ -64,6 +64,9 @@ class DemographicData(object):
             self.df[c] = self.df[c].apply(lambda x: 1 if x == v else 0)
 
     def group(self, mapping):
+        if not mapping:
+            return
+
         for k, v in mapping.iteritems():
             self.df[self.target] = self.df[self.target].apply(lambda x: \
                                                               v if x == k \
