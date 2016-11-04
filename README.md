@@ -1,14 +1,14 @@
 # Connectomes of Schizophrenic and Healthy Individuals
 
-We investigate an fMRI dataset comparing healthy individuals to individuals
+I investigate an fMRI dataset comparing healthy individuals to individuals
 diagnosed with schizophrenia. The current belief is that connectivity between
 functional components is significantly different in individuals with (or
 susceptible to) schizophrenia. There are two main motivations for this project.
 
 The first is to look for functioning neurological processes that may
 indicate illness or susceptibility to illness -- schizophrenia, in our case.
-We analyze fMRI data by constructing graph networks representing region
-connectivity/correlation.  We are then interested in *which graph network
+I analyze fMRI data by constructing graph networks representing region
+connectivity/correlation. I then investigate *which graph network
 features are the most important predictors*. The most important predictors
 will have the most impact on improving the accuracy of classification or
 clustering of individuals.
@@ -21,17 +21,50 @@ present report and the companion web application [link].
 
 ## Results
 
-Here is an plot of the graph network connectome of patient 'sub001':
+Here is a plot of the graph network connectome of patient 'sub001', using
+the MSDL brain atlas.  The boldness of the red lines indicates the strength
+of correlation, whereas the blue lines indicate anticorrelation.
 
 ![sub001 connectome](images/models/sub001-connectome.png)
 
 
 ## Methods
 
+I outline some of the techniques used to perform the analysis.  For more detail,
+have a look at the code!
 The packages and programs (requirements) used for the analysis are listed at
 the end of this section. These are required to redo the analysis.
 
-### Python (2.7)
+### Metadata Analysis
+
+#### Preprocessing
+
+First I loaded the data into Pandas and used mean imputation to fill in NaN
+fields. I have yet to implement KNN method to fill in values and I still need
+to cross validate.
+
+#### Model
+
+I used a gradient boosting classifier from Scikit-learn on a stratified
+train-test split to classify and predict.  I considered two situations:
+
+1. Binary classification: 'SCZ' versus not 'SCZ' labeled data
+2. Multiclass: Four classes {'SCZ', 'SCZ-SIB', 'CON', 'CON-SIB'}.
+
+
+### fMRI Analysis
+
+### Preprocessing
+
+I have not done much more preprocessing than was implemented in the original
+FSL pipeline -- FEAT, FLIRT, FNIRT.  
+
+### Modeling
+
+
+
+
+#### Python (2.7)
 
 * Pandas -- Data manipulation (e.g. demographics.txt)
 * NewtorkX -- Graph network package.
@@ -43,11 +76,11 @@ the end of this section. These are required to redo the analysis.
 * Matplotlib -- Generic 2D plotting and animations.
 * Mayavi -- 2D/3D visualization.
 
-### R (3.3.2)
+#### R (3.3.2)
 
 * TDA -- Topological data analysis package.
 
-### Programs
+#### Programs
 
 * FSL
 
