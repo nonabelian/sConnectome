@@ -1,5 +1,13 @@
 # Directory structure
 
+There are quite a few files associated with each subject. Some of them,
+like those in 'model' are generated via FSL.  There is raw data in 'BOLD'
+and 'anatomy'.  There are also experiment specific files such as
+'task_order.txt' and other files in 'model'.
+
+Subject directory:
+
+```
 data
 +--subNNN
 |  +--BOLD
@@ -22,3 +30,11 @@ data
 |  +--behav
 |  +--model
 |  +--task_order.txt
+```
+
+Metadata directory:
+```
+data
++--ds115_metadata
+```
+
