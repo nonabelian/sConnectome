@@ -54,15 +54,33 @@ train-test split to classify and predict.  I considered two situations:
 
 ### fMRI Analysis
 
-### Preprocessing
+#### Preprocessing
 
 I have not done much more preprocessing than was implemented in the original
-FSL pipeline -- FEAT, FLIRT, FNIRT.  
+FSL pipeline -- FEAT, FLIRT, FNIRT. I used the affine and warp transformations
+to transform the data into MNI space.
 
-### Modeling
+I use an MSDL atlas to segment the brain into regions.
+I then use graph lasso and Nilearn's GraphSparseCovarianceCV to calculate
+covariance and sparse inverse covarianc, as methods to examine the functional
+connectome.  This results in a graph network for eash subject, aggregated
+over all tasks.
+
+#### Modeling
+
+I add the following graph features to the labeled dataset:
+
+* Average node connectivity
+* Betweenness centrality
+* Eigenvector centrality
+* Current flow closeness
+* Current flow betweenness
+* Average shortest path length
+* Diameter
+* Efficiency and global efficiency
 
 
-
+### Requirements
 
 #### Python (2.7)
 
