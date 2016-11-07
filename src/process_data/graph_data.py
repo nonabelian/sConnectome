@@ -4,8 +4,6 @@ from collections import defaultdict
 import networkx as nx
 from nilearn import image
 from nilearn import input_data
-from nilearn.connectome import GroupSparseCovarianceCV
-from sklearn.covariance import GraphLassoCV
 from sklearn.externals.joblib import Memory
 
 

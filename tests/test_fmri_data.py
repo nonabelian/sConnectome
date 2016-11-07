@@ -1,4 +1,6 @@
 import nose.tools as n
+import numpy as np
+import nibabel as nib
 
 from .context import src
 from src.process_data.fmri_data import fMRIExperimentData
@@ -16,8 +18,8 @@ def testfMRIExperimentData():
     n.assert_equal(exp, act, msg=get_message('Subject fMRI List Length', exp,
                    act))
 
-    exp = type(fMRISubjectData)
-    actual = type(fed.subject_fmri_data[0])
+    exp = True
+    actual = isinstance(fed.subject_fmri_data[0], fMRISubjectData)
     n.assert_equal(exp, act, msg=get_message('Subject fMRI Type Check', exp,
                    act))
 
@@ -29,7 +31,7 @@ def test_fMRISubjectData():
     act = fsd.directory
     n.assert_equal(exp, act, msg=get_message('Directory', exp, act))
 
-    exp = 'data/MNI'
+    exp = 'data/MNI/sub'
     act = fsd.working_directory
     n.assert_equal(exp, act, msg=get_message('Working Directory', exp, act))
 
@@ -41,8 +43,8 @@ def test_fMRISubjectData():
     act = len(fsd.task_fmri_data)
     n.assert_equal(exp, act, msg=get_message('Task fMRI List Length', exp, act))
 
-    exp = type(fMRITaskData)
-    actual = type(fed.task_fmri_data[0])
+    exp = True
+    act = isinstance(fsd.task_fmri_data[0], fMRITaskData)
     n.assert_equal(exp, act, msg=get_message('Task fMRI Type Check', exp, act))
 
 
@@ -59,59 +61,112 @@ def test_get_subject_name():
 
 
 def test_fMRITaskData():
-    ftd = fMRITaskData('data/sub/model/task1.feat/', working_directory='data/')
+    ftd = fMRITaskData('data/sub/model/task1.feat/',
+                       working_directory='data/MNI/sub/')
 
     exp = 'data/sub/model/task1.feat/'
-    act = fsd.directory
+    act = ftd.directory
     n.assert_equal(exp, act, msg=get_message('Directory', exp, act))
 
     exp = 'data/MNI/sub/'
-    act = fsd.working_directory
+    act = ftd.working_directory
     n.assert_equal(exp, act, msg=get_message('Working Directory', exp, act))
 
     exp = 'task1'
-    act = fsd.name
+    act = ftd.name
     n.assert_equal(exp, act, msg=get_message('Name', exp, act))
 
-    exp = type(fMRITaskData)
-    actual = type(fed.task_fmri_data[0])
-    n.assert_equal(exp, act, msg=get_message('Task fMRI Type Check', exp, act))
-    
+    exp = True
+    act = isinstance(ftd.filtered_image[0], str)
+    n.assert_equal(exp, act, msg=get_message('Filtered Image String Type', exp,
+                   act))
+    exp = True
+    act = isinstance(ftd.filtered_image[1], nib.Nifti1Image)
+    n.assert_equal(exp, act, msg=get_message('Filtered Image NIfTI Type', exp,
+                   act))
 
-def test_get_taskname():
-    ftd = fMRITaskData('data/sub/task1.feat/',
+    exp = True
+    act = isinstance(ftd.structure_image[0], str)
+    n.assert_equal(exp, act, msg=get_message('Structure Image String Type', exp,
+                   act))
+    exp = True
+    act = isinstance(ftd.structure_image[1], nib.Nifti1Image)
+    n.assert_equal(exp, act, msg=get_message('Structure Image NIfTI Type', exp,
+                   act))
+
+    exp = True
+    act = isinstance(ftd.standard_mni_image[0], str)
+    n.assert_equal(exp, act, msg=get_message('Standard Image String Type', exp,
+                   act))
+    exp = True
+    act = isinstance(ftd.standard_mni_image[1], nib.Nifti1Image)
+    n.assert_equal(exp, act, msg=get_message('Standard Image NIfTI Type', exp,
+                   act))
+
+    exp = True
+    act = isinstance(ftd.affine[0], str)
+    n.assert_equal(exp, act, msg=get_message('Affine String Type', exp, act))
+
+    exp = np.ndarray
+    act = type(ftd.affine[1])
+    n.assert_equal(exp, act, msg=get_message('Affine Mat Type', exp, act))
+
+    exp = True
+    act = isinstance(ftd.warp[0], str)
+    n.assert_equal(exp, act, msg=get_message('Warp String Type', exp, act))
+
+    exp = True
+    act = isinstance(ftd.warp[1], nib.Nifti1Image)
+    n.assert_equal(exp, act, msg=get_message('Warp NIfTI Type', exp, act))
+
+    exp = True
+    act = isinstance(ftd.confounds[0], str)
+    n.assert_equal(exp, act, msg=get_message('Confounds String Type', exp, act))
+
+    exp = np.ndarray
+    act = type(ftd.confounds[1])
+    n.assert_equal(exp, act, msg=get_message('Confounds Mat Type', exp, act))
+
+    exp = None
+    act = ftd.filtered_mni_image
+    n.assert_equal(exp, act, msg=get_message('Filtered MNI Initial Type', exp,
+                   act))
+
+
+def test_get_task_name():
+    ftd = fMRITaskData('data/sub/model/task1.feat/',
                        working_directory='data/MNI/sub/')
 
     exp = 'task1'
-    act = fsd.get_subject_name(directory='tmp/dir.name/task1/')
+    act = ftd.get_task_name(directory='tmp/dir.name/task1/')
     n.assert_equal(exp, act, msg=get_message('Getting Subject Name 1', exp,
                    act))
 
     exp = 'task1'
-    act = fsd.get_subject_name(directory='tmp/dir.name/task1.foo')
+    act = ftd.get_task_name(directory='tmp/dir.name/task1.foo')
     n.assert_equal(exp, act, msg=get_message('Getting Subject Name 2', exp,
                    act))
 
-def test_load_nii():
-    pass
-
-def test_load_mat():
-#    ftd = fMRITaskData('data/sub/model/task1.feat/', working_directory='data/')
-    pass
-
-def test_save_mni_data():
-    pass
+#def test_load_nii():
+#    pass
+#
+#def test_load_mat():
+#    pass
+#
+#def test_save_mni_data():
+#    pass
 
 def test_generate_mni():
-    ftd = fMRITaskData('data/sub/model/task1.feat/', working_directory='data/')
+    ftd = fMRITaskData('data/sub/model/task1.feat/',
+                       working_directory='data/MNI/sub/')
 
     ftd.generate_mni()
 
-    exp = str
-    act = ftd.filtered_mni_image[0]
-    n.assert_equal(exp, act, msg=get_message("Str Type MNI", exp, act))
+    exp = True
+    act = isinstance(ftd.filtered_mni_image[0], str)
+    n.assert_equal(exp, act, msg=get_message("Sting Type MNI", exp, act))
 
     exp = True
-    act = isinstance(ftd.filtered_mni_image[0], nib.Nifti1Image)
+    act = isinstance(ftd.filtered_mni_image[1], nib.Nifti1Image)
     n.assert_equal(exp, act, msg=get_message("Nifti Type MNI", exp, act))
 

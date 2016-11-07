@@ -190,7 +190,7 @@ class fMRITaskData(object):
         self.working_directory = working_directory
 
         # Task name.  As per the above example: 'task001'
-        self.name = self.get_taskname(directory)
+        self.name = self.get_task_name(directory)
 
         # Note: the following images have the form [path, data]
 
@@ -211,7 +211,7 @@ class fMRITaskData(object):
         self.filtered_mni_image = None
 
 
-    def get_taskname(self, directory):
+    def get_task_name(self, directory):
         ''' Extracts the task 'name' or tag from the directory string
             INPUT: string
             OUTPUT: string
@@ -243,7 +243,7 @@ class fMRITaskData(object):
         
                 return [f, nib.load(f)]
 
-        raise ValueError("ValueError: " + f + " does not exist!")
+        raise ValueError("ValueError: " + fname + " does not exist!")
 
 
     def load_mat(self, directory, mat):
