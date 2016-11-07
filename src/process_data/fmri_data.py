@@ -53,7 +53,7 @@ class fMRIExperimentData(object):
         return subjects_data
 
 
-    def iter_subject_data():
+    def iter_subject_data(self):
         for sd in self.subject_fmri_data:
             yield sd
 
