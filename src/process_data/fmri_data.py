@@ -5,24 +5,81 @@ import nibabel as nib
 from nipype.interfaces import fsl
 
 
+class fMRIExperimentData(object):
+    ''' Class that contains FEAT fMRI data FOR ALL SUBJECTS performed by one
+        particular subject, given a subject directory.
+        INPUT: string, string, string, string, string, string, string
+                'directories' -- list of subject directories
+                'working_directory' -- needed for manipulating nii images. 
+                'filtered_data' -- filtered 4D fMRI subject data
+                'structure_data' -- high resolution subject structural image
+                'standard_data' -- generic template.
+                'affine' -- affine transformation from 'filtered' to 'structure'
+                'warp' -- subsequent warp transformation from 'structure' to
+                          'standard'
+                'confounds' -- a '.mat' text file containing confounds
+    '''
+
+    def __init__(self, directories, working_directory='./.tmp',
+                 filtered_data='filtered_func_data.nii.gz',
+                 structure_data='highres.nii.gz',
+                 standard_data='standard.nii.gz',
+                 affine='example_func2highres.mat',
+                 warp='highres2standard_warp.nii.gz',
+                 confounds='confoundevs.txt'):
+
+        self.directories = directories
+        self.working_directory = working_directory
+        self.filtered_data=filtered_data
+        self.structure_data=structure_data
+        self.standard_data=standard_data
+        self.affine=affine
+        self.warp=warp
+        self.confounds=confounds
+
+        self.subject_fmri_data = self.load_subject_data()
+
+
+    def load_subject_data(self):
+        subjects_data = []
+
+        for d in self.directories:
+            fsd = fMRISubjectData(d, self.working_directory, self.filtered_data,
+                                  self.structure_data, self.standard_data,
+                                  self.affine, self.warp, self.confounds)
+
+            subjects_data.append(fsd)
+
+        return subjects_data
+
+
+    def iter_subject_data():
+        for sd in self.subject_fmri_data:
+            yield sd
+
+
 class fMRISubjectData(object):
     ''' Class that contains FEAT fMRI data FOR ALL TASKS performed by one
         particular subject, given a subject directory.
         INPUT: string, string, string, string, string, string, string
+                'directory' -- subject root directory -- 'sub001/'
                 'working_directory' -- needed for manipulating nii images. 
-                'filtered..' -- filtered 4D fMRI subject data
-                'structure..' -- high resolution subject structural image
-                'standard' -- generic template.
+                'filtered_data' -- filtered 4D fMRI subject data
+                'structure_data' -- high resolution subject structural image
+                'standard_data' -- generic template.
                 'affine' -- affine transformation from 'filtered' to 'structure'
                 'warp' -- subsequent warp transformation from 'structure' to
                           'standard'
+                'confounds' -- a '.mat' text file containing confounds
     '''
+
     def __init__(self, directory, working_directory='./.tmp',
                  filtered_data='filtered_func_data.nii.gz',
                  structure_data='highres.nii.gz',
                  standard_data='standard.nii.gz',
                  affine='example_func2highres.mat',
-                 warp='highres2standard_warp.nii.gz'):
+                 warp='highres2standard_warp.nii.gz',
+                 confounds='confoundevs.txt'):
         self.directory = directory
         self.working_directory = self._make_wd(working_directory)
 
@@ -30,16 +87,23 @@ class fMRISubjectData(object):
         # 'demographics.txt'
         self.name = self.get_subject_name(directory=directory)
 
-        # Dictionary of task data, keyed by task name.
-        self.task_fmri_data = self.load_subject_data(directory,
+        # List of fMRITaskData objects
+        self.task_fmri_data = self.load_task_data(directory,
                                                      self.working_directory,
                                                      filtered_data,
                                                      structure_data,
                                                      standard_data,
                                                      affine,
-                                                     warp)
+                                                     warp,
+                                                     confounds)
 
     def _make_wd(self, working_directory):
+        ''' Create a working directory to run Nipype interface FSL
+            command line functions -- they work with files. Returns this
+            subject's MNI working directory.
+            INPUT: string
+            OUTPUT: string
+        '''
         name = self.get_subject_name(directory=self.directory)
 
         if not os.path.exists(working_directory):
@@ -59,6 +123,11 @@ class fMRISubjectData(object):
         
 
     def get_subject_name(self, directory=None):
+        ''' Parses the directory given to extract the subject 'name' or tag.
+            INPUT: string
+            OUTPUT: string
+        '''
+
         if not directory:
             return self.name
 
@@ -66,8 +135,17 @@ class fMRISubjectData(object):
         return dirname
 
 
-    def load_subject_data(self, directory, working_directory, filtered_data,
-                          structure_data, standard_data, affine, warp):
+    def load_task_data(self, directory, working_directory, filtered_data,
+                          structure_data, standard_data, affine, warp,
+                          confounds):
+        ''' Walks through the subject directory and creates a list of task
+            fMRI measurements, stored in fMRITaskData class objects.
+            Inputs are mirrored from this classes inputs.
+            Returns a list of fMRITaskData class objects.
+            INPUT: string, string, string, string, string, string
+            OUTPUT: list
+        '''
+
         subj_fmri = []
 
         for d, _, files in os.walk(directory):
@@ -80,24 +158,32 @@ class fMRISubjectData(object):
         
         return subj_fmri
 
+    def iter_task_data(self):
+        for task_data in self.task_fmri_data:
+            yield task_data
+
 
 class fMRITaskData(object):
     ''' Class to encapsulate FEAT preprocessed fMRI data -- given a subject
         task directory.
         INPUT: string, string, string, string, string, string, string
-                'filtered..' -- filtered 4D fMRI subject data
-                'structure..' -- high resolution subject structural image
-                'standard' -- generic template.
+                'directory' -- subject root directory -- 'sub001/.../task001/'
+                'working_directory' -- needed for manipulating nii images. 
+                'filtered_data' -- filtered 4D fMRI subject data
+                'structure_data' -- high resolution subject structural image
+                'standard_data' -- generic template.
                 'affine' -- affine transformation from 'filtered' to 'structure'
                 'warp' -- subsequent warp transformation from 'structure' to
                           'standard'
+                'confounds' -- a '.mat' text file containing confounds
     '''
     def __init__(self, directory, working_directory,
                  filtered_data='filtered_func_data.nii.gz',
                  structure_data='highres.nii.gz',
                  standard_data='standard.nii.gz',
                  affine='example_func2highres.mat',
-                 warp='highres2standard_warp.nii.gz'):
+                 warp='highres2standard_warp.nii.gz',
+                 confounds='confoundevs.txt'):
         # Directory to the FEAT task data -- e.g.
         # 'sub001/model/model001/task001.feat/'
         self.directory = directory
@@ -117,14 +203,19 @@ class fMRITaskData(object):
         # Structural template 3D image on which to fit all subjects.
         self.standard_mni_image = self.load_nii(directory, standard_data)
 
-        self.affine = self.load_affine(directory, affine)
+        self.affine = self.load_mat(directory, affine)
         self.warp = self.load_nii(directory, warp)
+        self.confounds = self.load_mat(directory, confounds)
 
         # Warped 4D subject data -- fit to structural template.
         self.filtered_mni_image = None
 
 
     def get_taskname(self, directory):
+        ''' Extracts the task 'name' or tag from the directory string
+            INPUT: string
+            OUTPUT: string
+        '''
         if not directory:
             return self.name
 
@@ -133,7 +224,16 @@ class fMRITaskData(object):
         root, tname = os.path.split(tname_dir)
         return tname
 
+
     def load_nii(self, directory, fname):
+        ''' Generic NIfTI image loader -- walks the directory structure,
+            finding 'fname' and loads that file.
+            Assumes the file is unique in the subdirectory tree.
+            Returns a length 2 list -- [file path, NIfTI image].
+            INPUT: string, string
+            OUTPUT: list
+        '''
+
         for d, _, files in os.walk(directory):
             if fname in files:
                 f = os.path.join(d, fname)
@@ -146,10 +246,17 @@ class fMRITaskData(object):
         raise ValueError("ValueError: " + f + " does not exist!")
 
 
-    def load_affine(self, directory, affine):
+    def load_mat(self, directory, mat):
+        ''' Similar to above function, tailored to loading .mat files.
+            Assumes the file is unique in the subdirectory tree.
+            Returns a length 2 list -- [file path, matrix np.array].
+            INPUT: string, string
+            OUTPUT: list
+        '''
+
         for d, _, files in os.walk(directory):
-            if affine in files:
-                f = os.path.join(d, affine)
+            if mat in files:
+                f = os.path.join(d, mat)
 
                 if not os.path.exists(f):
                     raise ValueError("ValueError: " + f + " does not exist!")
@@ -160,6 +267,14 @@ class fMRITaskData(object):
 
 
     def save_mni_data(self, save_file=None):
+        ''' Convenience function for saving MNI images stored in this class
+            object.
+            Note, these MNI images are probably already stored in the MNI
+            working directory.
+            INPUT: string
+            OUTPUT: None
+        '''
+
         if not self.filtered_mni_image:
             print "Warning: Must have generated MNI data first!"
             return
@@ -175,7 +290,13 @@ class fMRITaskData(object):
         nib.save(self.filtered_mni_image, location)
 
 
-    def generate_mni(self):
+    def generate_mni(self, force=False):
+        ''' Uses Nipype FSL interface to 'applywarp' on the class contained
+            NIfTI images and generate a corresponding MNI space file, stored
+            in the task associated working directory.
+            INPUT: bool
+            OUTPUT: None
+        '''
         img_file, _ = self.filtered_image
         mni_file, _ = self.standard_mni_image
         warp_file, _ = self.warp
@@ -184,16 +305,23 @@ class fMRITaskData(object):
         name = self.name + '-' + 'mni.nii.gz'
         sf = os.path.join(self.working_directory, name)
 
-        aw = fsl.ApplyWarp()
-        aw.inputs.in_file = img_file
-        aw.inputs.ref_file = mni_file
-        aw.inputs.field_file = warp_file
-        aw.inputs.premat = affine_file
-        aw.inputs.out_file = sf
+        if os.path.exists(sf) and not force:
+            print "MNI File Exists: Loading ..."
+            self.filtered_mni_image = [sf, nib.load(sf)]
+        else:
+            print "Generating MNI -- this will take some time..."
+            aw = fsl.ApplyWarp()
+            aw.inputs.in_file = img_file
+            aw.inputs.ref_file = mni_file
+            aw.inputs.field_file = warp_file
+            aw.inputs.premat = affine_file
+            aw.inputs.out_file = sf
 
-        aw.run()
+            aw.run()
 
-        self.filtered_mni_image = [sf, nib.load(sf)]
+            self.filtered_mni_image = [sf, nib.load(sf)]
+
+            print "Done, saved to:", sf
 
 
 ###############
