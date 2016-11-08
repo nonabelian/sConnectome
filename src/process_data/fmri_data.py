@@ -59,20 +59,6 @@ class fMRIExperimentData(object):
         for sd in self.subject_fmri_data:
             yield sd
 
-#    def generate_mni_parallel(self):
-#        pool = mp.Pool(processes=mp.cpu_count())
-#        multi_proc = [pool.apply_async(sd.generate_mni_threaded, ()) for sd \
-#                      in self.iter_subject_data()]
-#
-#        [proc.get() for proc in multi_proc]
-
-def generate_mni_parallel(ec):
-    pool = mp.Pool(processes=mp.cpu_count())
-    multi_proc = [pool.apply_async(generate_mni_threaded, (sd,)) for sd \
-                  in ec.iter_subject_data()]
-
-    [proc.get() for proc in multi_proc]
-
 
 class fMRISubjectData(object):
     ''' Class that contains FEAT fMRI data FOR ALL TASKS performed by one
@@ -178,30 +164,6 @@ class fMRISubjectData(object):
         for task_data in self.task_fmri_data:
             yield task_data
 
-#    def generate_mni_threaded(self):
-#        threads = []
-#
-#        for td in self.iter_task_data():
-#            threads.append(threading.Thread(target=td.generate_mni(),
-#                                            args=()))
-#
-#        for th in threads:
-#            th.start()
-#
-#        for th in threads:
-#            th.join()
-
-def generate_mni_threaded(sc):
-    threads = []
-
-    for td in sc.iter_task_data():
-        threads.append(threading.Thread(target=generate_mni(), args=([td])))
-
-    for th in threads:
-        th.start()
-
-    for th in threads:
-        th.join()
 
 class fMRITaskData(object):
     ''' Class to encapsulate FEAT preprocessed fMRI data -- given a subject
@@ -330,39 +292,26 @@ class fMRITaskData(object):
         nib.save(self.filtered_mni_image, location)
 
 
-#    def generate_mni(self, force=False):
-#        ''' Uses Nipype FSL interface to 'applywarp' on the class contained
-#            NIfTI images and generate a corresponding MNI space file, stored
-#            in the task associated working directory.
-#            INPUT: bool
-#            OUTPUT: None
-#        '''
-#        img_file, _ = self.filtered_image
-#        mni_file, _ = self.standard_mni_image
-#        warp_file, _ = self.warp
-#        affine_file, _ = self.affine
-#
-#        name = self.name + '-' + 'mni.nii.gz'
-#        sf = os.path.join(self.working_directory, name)
-#
-#        if os.path.exists(sf) and not force:
-#            print "MNI File Exists: Loading ..."
-#            self.filtered_mni_image = [sf, nib.load(sf)]
-#        else:
-#            print "Generating MNI -- this will take some time..."
-#            aw = fsl.ApplyWarp()
-#            aw.inputs.in_file = img_file
-#            aw.inputs.ref_file = mni_file
-#            aw.inputs.field_file = warp_file
-#            aw.inputs.premat = affine_file
-#            aw.inputs.out_file = sf
-#
-#            aw.run()
-#
-#            self.filtered_mni_image = [sf, nib.load(sf)]
-#
-#            print "Done, saved to:", sf
+def generate_mni_parallel(ec):
+    pool = mp.Pool(processes=mp.cpu_count())
+    multi_proc = [pool.apply_async(generate_mni_threaded, (sd,)) for sd \
+                  in ec.iter_subject_data()]
 
+    for proc in multi_proc:
+        proc.get()
+
+
+def generate_mni_threaded(sc):
+    threads = []
+
+    for td in sc.iter_task_data():
+        threads.append(threading.Thread(target=generate_mni, args=([td])))
+
+    for th in threads:
+        th.start()
+
+    for th in threads:
+        th.join()
 
 def generate_mni(tc, force=False):
     ''' Uses Nipype FSL interface to 'applywarp' on the class contained
@@ -396,6 +345,7 @@ def generate_mni(tc, force=False):
         tc.filtered_mni_image = [sf, nib.load(sf)]
 
         print "Done, saved to:", sf
+
 ###############
 # End of File
 ###############

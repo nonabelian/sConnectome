@@ -6,6 +6,8 @@ from .context import src
 from src.process_data.fmri_data import fMRIExperimentData
 from src.process_data.fmri_data import fMRISubjectData
 from src.process_data.fmri_data import fMRITaskData
+from src.process_data.fmri_data import generate_mni_parallel
+from src.process_data.fmri_data import generate_mni_threaded
 from get_message import get_message
 
 
@@ -156,17 +158,21 @@ def test_get_task_name():
 #def test_save_mni_data():
 #    pass
 
-def test_generate_mni():
-    ftd = fMRITaskData('data/sub/model/task1.feat/',
-                       working_directory='data/MNI/sub/')
+def test_generate_mni_threaded():
+    fsd = fMRISubjectData('data/sub/', working_directory='data/')
 
-    ftd.generate_mni()
+    generate_mni_threaded(fsd)
 
-    exp = True
-    act = isinstance(ftd.filtered_mni_image[0], str)
-    n.assert_equal(exp, act, msg=get_message("Sting Type MNI", exp, act))
+    for ftd in fsd.iter_task_data():
+        exp = True
+        act = isinstance(ftd.filtered_mni_image[0], str)
+        n.assert_equal(exp, act, msg=get_message("Sting Type MNI", exp, act))
 
-    exp = True
-    act = isinstance(ftd.filtered_mni_image[1], nib.Nifti1Image)
-    n.assert_equal(exp, act, msg=get_message("Nifti Type MNI", exp, act))
+        exp = True
+        act = isinstance(ftd.filtered_mni_image[1], nib.Nifti1Image)
+        n.assert_equal(exp, act, msg=get_message("Nifti Type MNI", exp, act))
 
+def test_generate_mni_parallel():
+    fed = fMRIExperimentData(['data/sub/'], working_directory='data/')
+
+    generate_mni_parallel(fed)
