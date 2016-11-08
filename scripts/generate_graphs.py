@@ -34,15 +34,21 @@ if __name__ == '__main__':
 #    ged.generate_graphs_sequential()
     
     for name, gd in ged.graph_data.iteritems():
-        if name == 'sub023':
-            continue
+#        if name == 'sub023':
+#            continue
 
         fp = os.path.join('data/graphs/', name + '_graph_data.pkl')
         if os.path.exists(fp):
             print "File Exists", fp, ": Skipping..."
             continue
 
-        gd = generate_graph_threaded(gd)
+        try:
+            gd = generate_graph_threaded(gd)
+        except IndexError as e:
+            print 'FAILED:', gd.subject_data.name
+            print e
+            continue
+
         gd.calculate_graph_properties()
         gd.save_graph_data(save_directory='data/graphs/')
 
