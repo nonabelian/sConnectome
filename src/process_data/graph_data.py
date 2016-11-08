@@ -70,13 +70,7 @@ class GraphExperimentData(object):
             # Set the graph data
             gd.graph = data[sub]['graph']
             gd.norm_cov = data[sub]['norm_cov']
-
-            # Set the graph property data
-            for prop in data[sub]:
-                if prop in ['graph', 'norm_cov']:
-                    continue
-
-                gd.graph_properties[prop] = data[sub][prop]
+            gd.graph_properties = data[sub]['properties']
 
 
     def save_graph_data(self, save_directory=None):
@@ -213,6 +207,30 @@ class GraphSubjectData(object):
     def calculate_graph_properties(self):
         for p in self.properties:
             self.graph_properties[p] = getattr(nx.algorithms, p)(self.graph)
+
+    def save_graph_data(self, save_directory=None):
+
+        if save_directory:
+            wd = save_directory
+        else:
+            wd = self.subject_data.working_directory
+
+        name = self.subject_data.name
+
+        data = {}
+        data['graph'] = self.graph
+        data['properties'] = self.graph_properties
+        data['norm_cov'] = self.norm_cov
+
+        if not os.path.exists(wd):
+            os.makedirs(wd)
+
+        save_name = name + '_graph_data.pkl'
+
+        save_file = os.path.join(wd, save_name)
+
+        with open(save_file, 'w') as f:
+            pickle.dump(data, f)
 
 
 def generate_graphs_parallel(ged, cpus=None):

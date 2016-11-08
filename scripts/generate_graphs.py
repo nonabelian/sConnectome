@@ -5,6 +5,7 @@ from src.process_data.fmri_data import fMRIExperimentData
 from src.process_data.fmri_data import generate_mni_parallel
 from src.process_data.graph_data import GraphExperimentData
 from src.process_data.graph_data import generate_graphs_parallel
+from src.process_data.graph_data import generate_graph_threaded
 
 
 if __name__ == '__main__':
@@ -27,10 +28,12 @@ if __name__ == '__main__':
     ged = GraphExperimentData([gsc], fed, msdl_atlas_dataset,
                               msdl_atlas_dataset.maps)
 
-    ged = generate_graphs_parallel(ged, cpus=8)
+#    ged = generate_graphs_parallel(ged, cpus=8)
 #    ged.generate_graphs_sequential()
     
     for gd in ged.iter_graph_data():
+        gd = generate_graph_threaded(gd)
         gd.calculate_graph_properties()
+        gd.save_graph_data(save_directory='data/graphs/')
 
-    ged.save_graph_data()
+#    ged.save_graph_data()
