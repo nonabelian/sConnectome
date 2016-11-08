@@ -3,8 +3,8 @@ from nilearn import datasets
 
 from src.process_data.fmri_data import fMRIExperimentData
 from src.process_data.fmri_data import generate_mni_parallel
-from src.process_data.graph_data import generate_graph_parallel
 from src.process_data.graph_data import GraphExperimentData
+from src.process_data.graph_data import generate_graphs_parallel
 
 
 if __name__ == '__main__':
@@ -27,4 +27,9 @@ if __name__ == '__main__':
     ged = GraphExperimentData([gsc], fed, msdl_atlas_dataset,
                               msdl_atlas_dataset.maps)
 
-    ged = generate_graph_parallel(ged)
+    ged = generate_graphs_parallel(ged)
+    
+    for gd in ged.iter_graph_data():
+        gd.calculate_graph_properties()
+
+    ged.save_graph_data()

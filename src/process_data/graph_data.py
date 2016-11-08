@@ -27,8 +27,14 @@ class GraphExperimentData(object):
         self.maps = maps
         self.properties = properties
 
-        self.graph_names = []
         self.graph_data = self.load_subject_graphs()
+
+        self.working_directory = self._set_wd()
+
+
+    def _set_wd(self):
+        return os.path.join(self.fmri_data.working_directory, 'graphs')
+
 
     def load_subject_graphs(self):
         ''' Loads a graph for each subject data in fMRIExperimentData and
@@ -38,40 +44,45 @@ class GraphExperimentData(object):
             INPUT: None
             OUTPUT: list
         '''
-        names = []
-        graphs = []
+        graphs = {}
 
         for subject_data in self.fmri_data.iter_subject_data():
             gd = GraphSubjectData(self.models, subject_data, self.atlas,
                                   self.maps, properties=self.properties)
 
-            names.append(subject_data.name)
-            graphs.append(gd)
-
-        self.graph_names = names
+            graphs[subject_data.name] = gd
 
         return graphs
 
-    def generate_subject_graphs(self):
-        ''' Generate graphs sequentially
-            INPUT: None
-            OUTPUT: None
-        '''
 
-        if not self.graph_data:
-            raise ValueError("Error: Must load in GraphSubjectData first!")
+    def load_graph_data(self, graph_data_file=None):
 
-        for sg in self.graph_data:
-            sg.generate_graph()
+        if not graph_data_file:
+            load_file = os.path.join(self.working_directory, 'graph_data.pkl')
 
-    def generate_subject_graphs_ll(self):
-        ''' Generate graphs in parallel
-            INPUT:
-            OUTPUT:
-        '''
-        pass
+        if not os.path.exists(load_file):
+            raise ValueError("ValueError: Graph file does not exist!")
 
-    def save_graph_data(self, save_file):
+        with open(load_file) as f:
+            data = pickle.load(f)
+
+        for sub, gd in self.graph_data.iteritems():
+            # Set the graph data
+            gd.graph = data[sub]['graph']
+            gd.graph_properties
+
+            # Set the graph property data
+            for prop in data[sub]:
+                if prop == 'graph':
+                    continue
+
+                gd.graph_properties[prop] = data[sub][prop]
+
+
+    def save_graph_data(self, save_directory=None):
+
+        if save_directory:
+            self.working_directory = save_directory
 
         data = {}
 
@@ -80,12 +91,17 @@ class GraphExperimentData(object):
             data[n]['graph'] = gd.graph
             data[n]['properties'] = gd.graph_properties
 
+        if not os.path.exists(self.working_directory):
+            os.makedirs(self.working_directory)
+
+        save_file = os.path.join(self.working_directory, 'graph_data.pkl')
+
         with open(save_file, 'w') as f:
             pickle.dump(data, f)
 
 
     def iter_graph_data(self):
-        for gd in self.graph_data:
+        for name, gd in self.graph_data.iteritems():
             yield gd
 
 
@@ -189,33 +205,33 @@ class GraphSubjectData(object):
             self.graph_properties[p] = getattr(nx.algorithms, p)(self.graph)
 
 
-def generate_graph_parallel(ged):
+def generate_graphs_parallel(ged):
     ''' Calculates inter-region correlations by masking the atlas with
         provided precomputed and computed high variance confounds,
         fitting the model(s), and extracting the appropriate coefficients/
         precisions (also normalizes this matrix).
-        TODO: Make parallel work...
         INPUT: GraphExperimentData
-        OUTPUT: None
+        OUTPUT: GraphExperimentData
     '''
 
+    if os.path.exists(ged.working_directory):
+        print "Graph data exists! Skipping..."
+        return ged
+
     pool = mp.Pool(processes=mp.cpu_count())
-    multi_proc = [pool.apply_async(generate_graph_threaded, (gd,)) for gd \
-                  in ged.iter_graph_data()]
+    multi_proc = [(name, pool.apply_async(generate_graph_threaded, (gd,))) for \
+                  name, gd in ged.graph_data.iteritems()]
 
     new_ged = GraphExperimentData(ged.models, ged.fmri_data, ged.atlas,
                                   ged.maps, properties=ged.properties)
-    new_ged.graph_data = []
+    new_ged.graph_data = {}
 
-    for proc in multi_proc:
+    for name, proc in multi_proc:
         new_gd = proc.get()
         
-        new_ged.graph_data.append(new_gd)
+        new_ged.graph_data[name] = new_gd
 
     return new_ged
-
-#    for gd in ged.iter_graph_data():
-#        generate_graph_threaded(gd)
 
     
 def generate_graph_threaded(gd):
@@ -225,7 +241,7 @@ def generate_graph_threaded(gd):
         precisions (also normalizes this matrix).
         TODO: Actually make this threaded.
         INPUT: GraphData
-        OUTPUT: None
+        OUTPUT: GraphData
     '''
     ts_data, confounds_data = gd.collect_ts_confounds()
 
