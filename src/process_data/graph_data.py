@@ -193,16 +193,20 @@ def generate_graph_parallel(ged):
         provided precomputed and computed high variance confounds,
         fitting the model(s), and extracting the appropriate coefficients/
         precisions (also normalizes this matrix).
+        TODO: Make parallel work...
         INPUT: GraphExperimentData
         OUTPUT: None
     '''
 
-    pool = mp.Pool(processes=mp.cpu_count())
-    multi_proc = [pool.apply_async(generate_graph_threaded, (gd,)) for gd \
-                  in ged.iter_graph_data()]
+#    pool = mp.Pool(processes=mp.cpu_count())
+#    multi_proc = [pool.apply_async(generate_graph_threaded, (gd,)) for gd \
+#                  in ged.iter_graph_data()]
+#
+#    for proc in multi_proc:
+#        proc.get()
 
-    for proc in multi_proc:
-        proc.get()
+    for gd in ged.iter_graph_data():
+        generate_graph_threaded(gd)
 
     
 def generate_graph_threaded(gd):
