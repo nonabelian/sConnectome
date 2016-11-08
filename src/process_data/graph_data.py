@@ -3,6 +3,7 @@ from collections import defaultdict
 import cPickle as pickle
 import multiprocessing as mp
 
+import numpy as np
 import networkx as nx
 from nilearn import image
 from nilearn import input_data
@@ -198,15 +199,23 @@ def generate_graph_parallel(ged):
         OUTPUT: None
     '''
 
-#    pool = mp.Pool(processes=mp.cpu_count())
-#    multi_proc = [pool.apply_async(generate_graph_threaded, (gd,)) for gd \
-#                  in ged.iter_graph_data()]
-#
-#    for proc in multi_proc:
-#        proc.get()
+    pool = mp.Pool(processes=mp.cpu_count())
+    multi_proc = [pool.apply_async(generate_graph_threaded, (gd,)) for gd \
+                  in ged.iter_graph_data()]
 
-    for gd in ged.iter_graph_data():
-        generate_graph_threaded(gd)
+    new_ged = GraphExperimentData(ged.models, ged.fmri_data, ged.atlas,
+                                  ged.maps, properties=ged.properties)
+    new_ged.graph_data = []
+
+    for proc in multi_proc:
+        new_gd = proc.get()
+        
+        new_ged.graph_data.append(new_gd)
+
+    return new_ged
+
+#    for gd in ged.iter_graph_data():
+#        generate_graph_threaded(gd)
 
     
 def generate_graph_threaded(gd):
@@ -239,4 +248,4 @@ def generate_graph_threaded(gd):
 
     gd.graph = nx.Graph(-gd.norm_cov)
 
-
+    return gd

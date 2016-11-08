@@ -54,6 +54,11 @@ class fMRIExperimentData(object):
 
         return subjects_data
 
+    
+    def load_subject_mni(self):
+        for sd in self.iter_subject_data():
+            sd.load_task_mni()
+
 
     def iter_subject_data(self):
         for sd in self.subject_fmri_data:
@@ -159,6 +164,12 @@ class fMRISubjectData(object):
                 subj_fmri.append(fmri_task)
         
         return subj_fmri
+
+
+    def load_task_mni(self):
+        for td in self.iter_task_data():
+            td.load_mni()
+
 
     def iter_task_data(self):
         for task_data in self.task_fmri_data:
@@ -268,6 +279,17 @@ class fMRITaskData(object):
         raise ValueError("ValueError: " + f + " does not exist!")
 
 
+    def load_mni(self):
+        name = self.name + '-' + 'mni.nii.gz'
+        sf = os.path.join(self.working_directory, name)
+
+        if os.path.exists(sf):
+            print 'Loading:', sf
+            self.filtered_mni_image = [sf, nib.load(sf)]
+        else:
+            print 'Path does not exist.  Try generating MNI first.'
+
+
     def save_mni_data(self, save_file=None):
         ''' Convenience function for saving MNI images stored in this class
             object.
@@ -329,7 +351,7 @@ def generate_mni(tc, force=False):
     sf = os.path.join(tc.working_directory, name)
 
     if os.path.exists(sf) and not force:
-        print "MNI File Exists: Loading ..."
+        print "MNI File Exists: Skipping ..."
         tc.filtered_mni_image = [sf, nib.load(sf)]
     else:
         print "Generating MNI -- this will take some time..."
