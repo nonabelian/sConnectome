@@ -26,6 +26,7 @@ class GraphExperimentData(object):
         self.maps = maps
         self.properties = properties
 
+        self.graph_names = []
         self.graph_data = self.load_subject_graphs()
 
     def load_subject_graphs(self):
@@ -36,13 +37,17 @@ class GraphExperimentData(object):
             INPUT: None
             OUTPUT: list
         '''
-        graphs = {}
+        names = []
+        graphs = []
 
         for subject_data in self.fmri_data.iter_subject_data():
             gd = GraphSubjectData(self.models, subject_data, self.atlas,
                                   self.maps, properties=self.properties)
 
-            graphs[subject_data.name] = gd
+            names.append(subject_data.name)
+            graphs.append(gd)
+
+        self.graph_names = names
 
         return graphs
 
