@@ -183,7 +183,7 @@ class GraphSubjectData(object):
             self.graph_properties[p] = getattr(nx.algorithms, p)(self.graph)
 
 
-def generate_graph_threaded(ged):
+def generate_graph_parallel(ged):
     ''' Calculates inter-region correlations by masking the atlas with
         provided precomputed and computed high variance confounds,
         fitting the model(s), and extracting the appropriate coefficients/
