@@ -153,7 +153,7 @@ class GraphSubjectData(object):
             return ['average_node_connectivity', \
                     'degree_centrality', \
                     'betweenness_centrality', \
-                    'eigenvector_centrality', \
+#                    'eigenvector_centrality', \
                     'current_flow_closeness_centrality', \
                     'current_flow_betweenness_centrality', \
                     'average_shortest_path_length', \
