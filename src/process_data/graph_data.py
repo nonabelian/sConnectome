@@ -1,5 +1,7 @@
 import os
 from collections import defaultdict
+import cPickle as pickle
+import multiprocessing as mp
 
 import networkx as nx
 from nilearn import image
@@ -24,7 +26,7 @@ class GraphExperimentData(object):
         self.maps = maps
         self.properties = properties
 
-        self.subject_graphs = self.load_subject_graphs()
+        self.graph_data = self.load_subject_graphs()
 
     def load_subject_graphs(self):
         ''' Loads a graph for each subject data in fMRIExperimentData and
@@ -34,13 +36,13 @@ class GraphExperimentData(object):
             INPUT: None
             OUTPUT: list
         '''
-        graphs = []
+        graphs = {}
 
         for subject_data in self.fmri_data.iter_subject_data():
             gd = GraphSubjectData(self.models, subject_data, self.atlas,
                                   self.maps, properties=self.properties)
 
-            graphs.append(gd)
+            graphs[subject_data.name] = gd
 
         return graphs
 
@@ -50,10 +52,10 @@ class GraphExperimentData(object):
             OUTPUT: None
         '''
 
-        if not self.subject_graphs:
+        if not self.graph_data:
             raise ValueError("Error: Must load in GraphSubjectData first!")
 
-        for sg in self.subject_graphs:
+        for sg in self.graph_data:
             sg.generate_graph()
 
     def generate_subject_graphs_ll(self):
@@ -63,12 +65,31 @@ class GraphExperimentData(object):
         '''
         pass
 
+    def save_graph_data(self, save_file):
+
+        data = {}
+
+        for n, gd in self.graph_data.iteritems():
+            data[n] = {}
+            data[n]['graph'] = gd.graph
+            data[n]['properties'] = gd.graph_properties
+
+        with open(save_file, 'w') as f:
+            pickle.dump(data, f)
+
+
+    def iter_graph_data(self):
+        for n, gd in self.graph_data:
+            yield gd
+
 
 class GraphSubjectData(object):
     ''' Class to generate and encapsulate graph data for fMRI data (from
         a fMRIExperimentData class object.
         INPUT: models, fMRISubjectData, atlas, map, list
-                models -- to predict time-averaged covariance between regions
+                models -- to predict time-averaged covariance between regions.
+                          This is a list for possible future implementation,
+                          but currently only accesses first model.
                 fMRIExperiment -- container for all experiment data
                 atlas -- chosen brain atlas regions
                 map -- atlas corresponding map
@@ -87,7 +108,7 @@ class GraphSubjectData(object):
         self.masker = self._set_masker(maps)
 
         # Quantitative graph properties
-        self.subj_graph_props = defaultdict(list)
+        self.graph_properties = {}
         self.properties = self.set_properties(properties)
 
 
@@ -107,10 +128,18 @@ class GraphSubjectData(object):
 
     def set_properties(self, properties):
         if not properties:
-            return ['average_node_connectivity', 'betweenness_centrality',\
-                    'eigenvector_centrality', 'current_flow_closeness',\
-                    'currnet_flow_betweenness', 'average_shortest_path_length',\
-                    'diameter', 'efficency', 'global_efficiency']
+            return ['average_node_connectivity', \
+                    'degree_centrality', \
+                    'betweenness_centrality', \
+                    'eigenvector_centrality', \
+                    'current_flow_closeness_centrality', \
+                    'current_flow_betweenness_centrality', \
+                    'average_shortest_path_length', \
+                    'diameter', \
+                    'radius', \
+                    'eccentricity']
+#                    'efficency', \
+#                    'global_efficiency']
 
         return properties
 
@@ -149,35 +178,56 @@ class GraphSubjectData(object):
         return ts_data, confounds_data
 
 
-    def generate_graph(self):
-        ''' Calculates inter-region correlations by masking the atlas with
-            provided precomputed and computed high variance confounds,
-            fitting the model(s), and extracting the appropriate coefficients/
-            precisions (also normalizes this matrix).
-            INPUT: None
-            OUTPUT: None
-        '''
-        ts_data, confounds_data = self.collect_ts_confounds()
+    def calculate_graph_properties(self):
+        for p in self.properties:
+            self.graph_properties[p] = getattr(nx.algorithms, p)(self.graph)
 
-        region_time_series = []
-        for img, c in zip(ts_data, confounds_data):
-            # Computing some confounds -- takes 4D NifTi file as argument
-            hv_confounds = self.mem.cache(image.high_variance_confounds)(img)
 
-            # Extract region
-            region_ts = self.masker.transform(img, confounds=[hv_confounds, c])
+def generate_graph_threaded(ged):
+    ''' Calculates inter-region correlations by masking the atlas with
+        provided precomputed and computed high variance confounds,
+        fitting the model(s), and extracting the appropriate coefficients/
+        precisions (also normalizes this matrix).
+        INPUT: GraphExperimentData
+        OUTPUT: None
+    '''
 
-            # List of regional time series data
-            region_time_series.append(region_ts) 
+    pool = mp.Pool(processes=mp.cpu_count())
+    multi_proc = [pool.apply_async(generate_graph_threaded, (gd,)) for gd \
+                  in ged.iter_graph_data()]
 
-#        for m in self.models:
-#            m.fit(region_time_series)
+    for proc in multi_proc:
+        proc.get()
 
-        m = self.models[0]
-        m.fit(region_time_series)
+    
+def generate_graph_threaded(gd):
+    ''' Calculates inter-region correlations by masking the atlas with
+        provided precomputed and computed high variance confounds,
+        fitting the model(s), and extracting the appropriate coefficients/
+        precisions (also normalizes this matrix).
+        TODO: Actually make this threaded.
+        INPUT: GraphData
+        OUTPUT: None
+    '''
+    ts_data, confounds_data = gd.collect_ts_confounds()
 
-        max_abs = np.max(np.fabs(m.precisions_[..., 0]))
-        self.norm_cov = m.precisions_[..., 0] / max_abs
+    region_time_series = []
+    for img, c in zip(ts_data, confounds_data):
+        # Computing some confounds -- takes 4D NifTi file as argument
+        hv_confounds = gd.mem.cache(image.high_variance_confounds)(img)
 
-        self.graph = nx.Graph(-self.norm_cov)
+        # Extract region
+        region_ts = gd.masker.transform(img, confounds=[hv_confounds, c])
+
+        # List of regional time series data
+        region_time_series.append(region_ts) 
+
+    m = gd.models[0]
+    m.fit(region_time_series)
+
+    max_abs = np.max(np.fabs(m.precisions_[..., 0]))
+    gd.norm_cov = m.precisions_[..., 0] / max_abs
+
+    gd.graph = nx.Graph(-gd.norm_cov)
+
 
