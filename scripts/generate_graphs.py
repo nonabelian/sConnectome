@@ -3,7 +3,7 @@ from nilearn import datasets
 
 
 from src.process_data.fmri_data import fMRIExperimentData
-from src.process_data.fmri_data import generate_mni_parallel
+from src.process_data.fmri_data import generate_graph_parallel
 from src.process_data.graph_data import GraphExperimentData
 
 
