@@ -1,3 +1,5 @@
+import os
+
 from nilearn.connectome import GroupSparseCovarianceCV
 from nilearn import datasets
 
@@ -36,7 +38,8 @@ if __name__ == '__main__':
             continue
 
         fp = os.path.join('data/graphs/', name + '_graph_data.pkl')
-        if os.path.exists('data/graphs/'):
+        if os.path.exists(fp):
+            print "File Exists", fp, ": Skipping..."
             continue
 
         gd = generate_graph_threaded(gd)
