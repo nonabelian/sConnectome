@@ -79,7 +79,7 @@ class GraphExperimentData(object):
 
 
     def iter_graph_data(self):
-        for n, gd in self.graph_data:
+        for n, gd in self.graph_data.iteritems():
             yield gd
 
 
