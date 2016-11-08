@@ -208,7 +208,7 @@ class GraphSubjectData(object):
         for p in self.properties:
             self.graph_properties[p] = getattr(nx.algorithms, p)(self.graph)
 
-    def save_graph_data(self, save_directory=None):
+    def save_graph_data(self, save_directory=None, force=False):
 
         if save_directory:
             wd = save_directory
@@ -228,6 +228,10 @@ class GraphSubjectData(object):
         save_name = name + '_graph_data.pkl'
 
         save_file = os.path.join(wd, save_name)
+
+        if os.path.exists(save_file) and not force:
+            print 'File Exists', save_file, ': Skipping...'
+            return
 
         with open(save_file, 'w') as f:
             pickle.dump(data, f)
