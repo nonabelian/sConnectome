@@ -31,7 +31,14 @@ if __name__ == '__main__':
 #    ged = generate_graphs_parallel(ged, cpus=8)
 #    ged.generate_graphs_sequential()
     
-    for gd in ged.iter_graph_data():
+    for name, gd in ged.graph_data.iteritems():
+        if name == 'sub023':
+            continue
+
+        fp = os.path.join('data/graphs/', name + '_graph_data.pkl')
+        if os.path.exists('data/graphs/'):
+            continue
+
         gd = generate_graph_threaded(gd)
         gd.calculate_graph_properties()
         gd.save_graph_data(save_directory='data/graphs/')
