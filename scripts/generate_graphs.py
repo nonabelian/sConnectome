@@ -27,7 +27,8 @@ if __name__ == '__main__':
     ged = GraphExperimentData([gsc], fed, msdl_atlas_dataset,
                               msdl_atlas_dataset.maps)
 
-    ged = generate_graphs_parallel(ged)
+#    ged = generate_graphs_parallel(ged)
+    ged.generate_graphs_sequential()
     
     for gd in ged.iter_graph_data():
         gd.calculate_graph_properties()

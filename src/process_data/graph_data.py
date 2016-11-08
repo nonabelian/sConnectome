@@ -100,6 +100,11 @@ class GraphExperimentData(object):
             pickle.dump(data, f)
 
 
+    def generate_graphs_sequential(self):
+        for gd in self.iter_graph_data():
+            gd = generate_graph_threaded(gd)
+
+
     def iter_graph_data(self):
         for name, gd in self.graph_data.iteritems():
             yield gd
