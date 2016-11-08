@@ -61,7 +61,7 @@ class fMRIExperimentData(object):
 
     def generate_mni_parallel(self):
         pool = mp.Pool(processes=mp.cpu_count())
-        multi_proc = [pool.apply_async(sd.generate_mni_thread, ()) for sd \
+        multi_proc = [pool.apply_async(sd.generate_mni_threaded, ()) for sd \
                       in self.iter_subject_data()]
 
         [proc.get() for proc in multi_proc]
