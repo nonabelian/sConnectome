@@ -1,4 +1,6 @@
 import os
+import multiprocessing as mp
+import threading
 
 import numpy as np
 import nibabel as nib
@@ -56,6 +58,13 @@ class fMRIExperimentData(object):
     def iter_subject_data(self):
         for sd in self.subject_fmri_data:
             yield sd
+
+    def generate_mni_parallel(self):
+        pool = mp.Pool(processes=mp.cpu_count())
+        multi_proc = [pool.apply_async(sd.generate_mni_thread, ()) for sd \
+                      in self.iter_subject_data()]
+
+        [proc.get() for proc in multi_proc]
 
 
 class fMRISubjectData(object):
@@ -161,6 +170,19 @@ class fMRISubjectData(object):
     def iter_task_data(self):
         for task_data in self.task_fmri_data:
             yield task_data
+
+    def generate_mni_threaded(self):
+        threads = []
+
+        for td in self.iter_task_data():
+            threads.append(threading.Thread(target=td.generate_mni(),
+                                            args=()))
+
+        for th in threads:
+            th.start()
+
+        for th in threads:
+            th.join()
 
 
 class fMRITaskData(object):
