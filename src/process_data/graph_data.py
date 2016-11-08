@@ -69,11 +69,11 @@ class GraphExperimentData(object):
         for sub, gd in self.graph_data.iteritems():
             # Set the graph data
             gd.graph = data[sub]['graph']
-            gd.graph_properties
+            gd.norm_cov = data[sub]['norm_cov']
 
             # Set the graph property data
             for prop in data[sub]:
-                if prop == 'graph':
+                if prop in ['graph', 'norm_cov']:
                     continue
 
                 gd.graph_properties[prop] = data[sub][prop]
@@ -90,6 +90,7 @@ class GraphExperimentData(object):
             data[n] = {}
             data[n]['graph'] = gd.graph
             data[n]['properties'] = gd.graph_properties
+            data[n]['norm_cov'] = gd.norm_cov
 
         if not os.path.exists(self.working_directory):
             os.makedirs(self.working_directory)
@@ -101,8 +102,12 @@ class GraphExperimentData(object):
 
 
     def generate_graphs_sequential(self):
-        for gd in self.iter_graph_data():
-            gd = generate_graph_threaded(gd)
+        new_graph_data = {}
+        for name, gd in self.graph_data.iteritems():
+            newgd = generate_graph_threaded(gd)
+            new_graph_data[name] = newgd
+
+        self.graph_data = new_graph_data
 
 
     def iter_graph_data(self):
@@ -210,7 +215,7 @@ class GraphSubjectData(object):
             self.graph_properties[p] = getattr(nx.algorithms, p)(self.graph)
 
 
-def generate_graphs_parallel(ged):
+def generate_graphs_parallel(ged, cpus=None):
     ''' Calculates inter-region correlations by masking the atlas with
         provided precomputed and computed high variance confounds,
         fitting the model(s), and extracting the appropriate coefficients/
@@ -223,7 +228,13 @@ def generate_graphs_parallel(ged):
         print "Graph data exists! Skipping..."
         return ged
 
-    pool = mp.Pool(processes=mp.cpu_count())
+
+    if cpus:
+        ncpus = cpus
+    else:
+        ncpus = mp.cpu_count()
+
+    pool = mp.Pool(processes=ncpus)
     multi_proc = [(name, pool.apply_async(generate_graph_threaded, (gd,))) for \
                   name, gd in ged.graph_data.iteritems()]
 

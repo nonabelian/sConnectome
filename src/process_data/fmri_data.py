@@ -352,7 +352,7 @@ def generate_mni(tc, force=False):
 
     if os.path.exists(sf) and not force:
         print "MNI File Exists: Skipping ..."
-        tc.filtered_mni_image = [sf, nib.load(sf)]
+#        tc.filtered_mni_image = [sf, nib.load(sf)]
     else:
         print "Generating MNI -- this will take some time..."
         aw = fsl.ApplyWarp()

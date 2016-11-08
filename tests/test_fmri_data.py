@@ -149,14 +149,6 @@ def test_get_task_name():
     n.assert_equal(exp, act, msg=get_message('Getting Subject Name 2', exp,
                    act))
 
-#def test_load_nii():
-#    pass
-#
-#def test_load_mat():
-#    pass
-#
-#def test_save_mni_data():
-#    pass
 
 def test_generate_mni_threaded():
     fsd = fMRISubjectData('data/sub/', working_directory='data/')
@@ -176,3 +168,18 @@ def test_generate_mni_parallel():
     fed = fMRIExperimentData(['data/sub/'], working_directory='data/')
 
     generate_mni_parallel(fed)
+
+def test_load_mni():
+    ftd = fMRITaskData('data/sub/model/task1.feat/',
+                       working_directory='data/MNI/sub/')
+
+    ftd.load_mni()
+
+    exp = True
+    act = isinstance(ftd.filtered_mni_image[0], str)
+    n.assert_equal(exp, act, msg=get_message('Filtered Image String Type', exp,
+                   act))
+    exp = True
+    act = isinstance(ftd.filtered_mni_image[1], nib.Nifti1Image)
+    n.assert_equal(exp, act, msg=get_message('Filtered Image NIfTI Type', exp,
+                   act))
