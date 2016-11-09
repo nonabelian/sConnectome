@@ -1,17 +1,24 @@
 import numpy as np
+from nilearn import datasets
+import colorlover as cl
 import plotly.plotly as py
 import plotly.graph_objs as go
 from plotly import offline
 from bs4 import BeautifulSoup
 
 
-def plot_feature_importances(names, importances):
-    fis = np.array(sorted(zip(names, importances), key=lambda x: x[1])[::-1])
+def plot_feature_importances(names, labels, importances):
+    fis = np.array(sorted(zip(names, labels, importances),
+                          key=lambda x: x[2])[::-1])
+
+    xdata = fis[:, 0].tolist()
+    ydata = fis[:, 2].astype(float).tolist()
+    hover_labels = fis[:, 1].tolist()
 
     trace0 = go.Bar(
-        x=fis[:, 0],
-        y=fis[:, 1].astype(float),
-        text=fis[:, 0],
+        x=xdata,
+        y=ydata,
+        text=hover_labels,
         marker=dict(
             color='rgb(158,202,225)',
             line=dict(
@@ -24,7 +31,6 @@ def plot_feature_importances(names, importances):
 
     data = [trace0]
     layout = go.Layout(
-#        title='Significant Properties',
         xaxis=dict(range=[-0.5,3]),
     )
 
@@ -38,10 +44,14 @@ def plot_feature_importances(names, importances):
     return div, script
 
 
-def plot_connectome3d(coords, covs):
+def plot_connectome3d(coords, names, covs):
+
+    msdl_atlas = datasets.fetch_atlas_msdl()
+    bupu = cl.scales['9']['seq']['BuPu']
+    bupu_interp = cl.interp(bupu, len(msdl_atlas['labels']))
 
     xyz = np.array(coords)
-    labels = map(str, range(len(xyz)))
+    labels = msdl_atlas['labels']
     group = range(len(xyz))
 
     scale_factor = 100
@@ -55,35 +65,39 @@ def plot_connectome3d(coords, covs):
 
     line_traces = []
 
+
+    # Add graph connections colored by correlation, alpha'd by strength
     for i, pt1 in enumerate(xyz):
         for j, pt2 in enumerate(xyz):
             if j >= i:
                 break
 
-            if covs[i, j] < 0.02:
+            if abs(covs[i, j]) < 0.1:
                 continue
 
             Xe = [pt1[0], pt2[0], None]
             Ye = [pt1[1], pt2[1], None]
             Ze = [pt1[2], pt2[2], None]
 
+            opacity = np.sqrt(abs(covs[i, j]))
+
             if covs[i, j] < 0:
-                c_val = abs(covs[i, j])
-                c = 'rgb({0},{1},{2})'.format(100, 100, scale_factor * c_val)
+                c = 'blue'
             if covs[i, j] > 0:
-                c_val = abs(covs[i, j])
-                c = 'rgb({0},{1},{2})'.format(scale_factor * c_val, 100, 100)
+                c = 'red'
 
             trace1 = go.Scatter3d(x=Xe,
                                   y=Ye,
                                   z=Ze,
                                   mode='lines',
-                                  line=go.Line(color=c, width=1),
-                                  hoverinfo='none'
+                                  line=go.Line(color=c, width=10),
+                                  hoverinfo='none',
+                                  opacity=opacity
                                   )
 
             line_traces.append(trace1)
 
+    # Add scatter of brain atlas regions
     trace2 = go.Scatter3d(
                     x=Xn,
                     y=Yn,
@@ -91,9 +105,9 @@ def plot_connectome3d(coords, covs):
                     mode='markers',
                     name='actors',
                     marker=go.Marker(symbol='dot',
-                                  size=6,
-                                  color=group,
-                                  colorscale='Viridis',
+                                  size=10,
+                                  color=bupu_interp,
+                                  colorscale=bupu,
                                   line=go.Line(color='rgb(50,50,50)', width=0.5)
                                   ),
                     text=labels,
@@ -109,7 +123,7 @@ def plot_connectome3d(coords, covs):
               )
 
     layout = go.Layout(
-            title="3D Connectome of Brain Region Connections",
+#            title="3D Connectome of Brain Regions",
             width=700,
             height=500,
             showlegend=False,
@@ -119,6 +133,19 @@ def plot_connectome3d(coords, covs):
                        ),
             margin=go.Margin(t=100),
             hovermode='closest',
+            annotations=go.Annotations([
+                        go.Annotation(
+                        showarrow=False,
+                        text="sub001",
+                        xref='paper',
+                        yref='paper',
+                        x=0,
+                        y=0.1,
+                        xanchor='center',
+                        yanchor='bottom',
+                        font=go.Font(size=14)
+                        )
+                    ]),
             )
 
     data = go.Data(line_traces + [trace2])

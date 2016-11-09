@@ -63,13 +63,15 @@ def plot_meta_feature_importances():
     names = META_DATA['columns']
     percents = META_MODEL.feature_importances_
 
-    div, script = wp.plot_feature_importances(names, percents)
+    div, script = wp.plot_feature_importances(names, names, percents)
 
     return div, script
 
 
 def plot_graph_connectome_3d():
     coords = get_region_coords()
+    msdl_atlas = datasets.fetch_atlas_msdl()
+    names = msdl_atlas['labels']
     graph_file = 'data/graphs/sub001_graph_data.pkl'
 
     with open(graph_file) as f:
@@ -77,7 +79,7 @@ def plot_graph_connectome_3d():
 
     covs = data['norm_cov']
 
-    div, script = wp.plot_connectome3d(coords, covs)
+    div, script = wp.plot_connectome3d(coords, names, covs)
 
     return div, script
 
@@ -86,7 +88,24 @@ def plot_graph_feature_importances():
     names = GRAPH_DATA['columns']
     percents = GRAPH_MODEL.feature_importances_
 
-    div, script = wp.plot_feature_importances(names, percents)
+    msdl_atlas = datasets.fetch_atlas_msdl()
+    labels = msdl_atlas['labels']
+
+    proper_names = []
+
+    for n in names:
+        if str.isdigit(n[-1]):
+            idx = int(filter(str.isdigit, n))
+            proper_names.append(labels[idx])
+        else:
+            proper_names.append(n)
+
+#    p = np.array(sorted(zip(proper_names, props, percents), key=lambda x: x[2])[::-1])
+#    print p
+#    for i in p:
+#        print i
+
+    div, script = wp.plot_feature_importances(names, proper_names, percents)
 
     return div, script
 
