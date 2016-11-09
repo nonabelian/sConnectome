@@ -76,19 +76,19 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">Jump</a>
+      <a class="navbar-brand" href="#">sConnectome</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#">Graphs</a></li>
-        <li><a href="#">3D</a></li>
+        <li><a href="#">Graph</a></li>
+        <li><a href="#connectome">Connectome</a></li>
         <li><a href="#">Feature Importance</a></li>
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- First Container -->
+<!-- D3 MSDL brain atlas to play with -->
 <div class="container-fluid bg-1 text-center">
   <h3 class="margin">What is sConnectome?</h3>
 
@@ -214,33 +214,6 @@
             return x(row[axisKeys[0]]) + " " + y(row[axisKeys[1]]) + " "
 			  + z(row[axisKeys[2]])
 		  })
-
-      // Draw a stem from the x-z plane to each sphere at elevation y.
-      // This convention was chosen to be consistent with x3d primitive ElevationGrid. 
-	/*
-      var stems = scene.selectAll(".stem").data( rows );
-      stems.exit().remove();
-
-      var newStems = stems.enter()
-        .append("transform")
-          .attr("class", "stem")
-        .append("shape");
-      newStems
-        .append("appearance")
-        .append("material")
-          .attr("emissiveColor", "gray")
-      newStems
-        .append("polyline2d")
-        .attr("lineSegments", function(row) { return "0 1, 0 0"; })
-
-      stems.transition().ease(ease).duration(duration)
-          .attr("translation",
-		    function(row) {
-			  return x(row[axisKeys[0]]) + " 0 " + z(row[axisKeys[2]]);
-			})
-          .attr("scale",
-             function(row) { return [1, y(row[axisKeys[1]])]; })
-	*/
     }
 
     function initializeDataGrid() {
@@ -292,11 +265,13 @@
 </div>
 
 <!-- Third Container -->
-<div class="container-fluid bg-2 text-center">
+<div class="container-fluid bg-4 text-center" id="connectome">
   <h3 class="margin">Connectome</h3>
-  <p></p>
-  {{g_fi_div|safe}}
-  {{g_fi_script|safe}}
+  <p>One subject's connectome</p>
+  <center>
+  {{c3d_div|safe}}
+  {{c3d_script|safe}}
+  </center>
 </div>
 
 <!-- Third Container -->

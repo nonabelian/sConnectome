@@ -39,12 +39,14 @@ with open('data/models/meta_model.pkl') as f:
 @app.route('/')
 def index():
     m_fi_div, m_fi_script = plot_meta_feature_importances()
+    c3d_div, c3d_script = plot_graph_connectome_3d()
     g_fi_div, g_fi_script = plot_graph_feature_importances()
 
     coords = get_region_coords()
 
     return render_template('scroll_me.html', title='sConnectome',
                            m_fi_div=m_fi_div, m_fi_script=m_fi_script,
+                           c3d_div=c3d_div, c3d_script=c3d_script,
                            g_fi_div=g_fi_div, g_fi_script=g_fi_script,
                            connectome_coords=coords)
 
@@ -62,6 +64,20 @@ def plot_meta_feature_importances():
     percents = META_MODEL.feature_importances_
 
     div, script = wp.plot_feature_importances(names, percents)
+
+    return div, script
+
+
+def plot_graph_connectome_3d():
+    coords = get_region_coords()
+    graph_file = 'data/graphs/sub001_graph_data.pkl'
+
+    with open(graph_file) as f:
+        data = pickle.load(f)
+
+    covs = data['norm_cov']
+
+    div, script = wp.plot_connectome3d(coords, covs)
 
     return div, script
 
