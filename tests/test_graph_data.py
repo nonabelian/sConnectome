@@ -57,6 +57,9 @@ def test_save_graph_data():
 
     ged = generate_graphs_parallel(ged)
 
+    for gd in ged.iter_graph_data():
+        gd.calculate_graph_properties()
+
     ged.save_graph_data()
 
 
