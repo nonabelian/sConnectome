@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Theme Made By www.w3schools.com - No Copyright -->
+  <title>{{title}}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <!-- Bokeh! -->
+  <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css" type="text/css" />
+  <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js"></script>
+
+  <!-- D3 and X3DOM -->
+  <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="http://x3dom.org/x3dom/dist/x3dom-full.js"></script>
+  <script type="text/javascript" src="scatter_plot_3d_demo.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://www.x3dom.org/download/dev/x3dom.css"/>
+
+  <style>
+  body {
+      font: 20px Montserrat, sans-serif;
+      line-height: 1.8;
+      color: #f5f6f7;
+  }
+  p {font-size: 16px;}
+  .margin {margin-bottom: 45px;}
+  .bg-1 {
+      background-color: #1abc9c; /* Green */
+      color: #ffffff;
+  }
+  .bg-2 {
+      background-color: #474e5d; /* Dark Blue */
+      color: #ffffff;
+  }
+  .bg-3 {
+      background-color: #ffffff; /* White */
+      color: #555555;
+  }
+  .bg-4 {
+      background-color: #2f2f2f; /* Black Gray */
+      color: #fff;
+  }
+  .container-fluid {
+      padding-top: 70px;
+      padding-bottom: 70px;
+  }
+  .navbar {
+      padding-top: 15px;
+      padding-bottom: 15px;
+      border: 0;
+      border-radius: 0;
+      margin-bottom: 0;
+      font-size: 12px;
+      letter-spacing: 5px;
+  }
+  .navbar-nav  li a:hover {
+      color: #1abc9c !important;
+  }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Jump</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Graphs</a></li>
+        <li><a href="#">3D</a></li>
+        <li><a href="#">Feature Importance</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- First Container -->
+<div class="container-fluid bg-1 text-center">
+  <h3 class="margin">What is sConnectome?</h3>
+
+  <center>
+  <div id="divPlot"></div>
+    <script>
+      d3.select('html').style('height','100%').style('width','100%')
+      d3.select('body').style('height','100%').style('width','100%')
+      d3.select('#divPlot').style('width', "400px").style('height', "200px")
+      scatterPlot3d( d3.select('#divPlot'));
+  // Create a 3d scatter plot within d3 selection parent.
+    function scatterPlot3d( parent )
+    {
+      var x3d = parent  
+		  .append("x3d")
+		  .style( "width", parseInt(parent.style("width"))+"px" )
+		  .style( "height", parseInt(parent.style("height"))+"px" )
+		  .style( "border", "none" )
+      
+		  var scene = x3d.append("scene")
+
+		  scene.append("orthoviewpoint")
+		  .attr( "centerOfRotation", [5, 5, 5])
+		  .attr( "fieldOfView", [2, 2, 8, 8])
+		  .attr( "orientation", [0.3, 1.5, 2.1, 2.8])
+		  .attr( "position", [6.5, 8, 7])
+
+	  var rows = initializeDataGrid();
+	  var axisRange = [0, 10];
+	  var scales = [];
+	  var initialDuration = 0;
+	  var defaultDuration = 800;
+	  var ease = 'linear';
+	  var time = 0;
+	  var axisKeys = ["x", "y", "z"]
+
+    // Helper functions for initializeAxis() and drawAxis()
+    function axisName( name, axisIndex ) {
+      return ['x','y','z'][axisIndex] + name;
+    }
+
+	function constVecWithAxisValue( otherValue, axisValue, axisIndex ) {
+		var result = [otherValue, otherValue, otherValue];
+		result[axisIndex] = axisValue;
+		return result;
+	}
+
+    // Used to make 2d elements visible
+    function makeSolid(selection, color) {
+      selection.append("appearance")
+        .append("material")
+           .attr("diffuseColor", color||"black")
+      return selection;
+    }
+
+    // Initialize the axes lines and labels.
+    function initializePlot() {
+      initializeAxis(0);
+      initializeAxis(1);
+      initializeAxis(2);
+    }
+
+    function initializeAxis( axisIndex )
+    {
+      var key = axisKeys[axisIndex];
+      drawAxis( axisIndex, key, initialDuration );
+
+      var scaleMin = axisRange[0];
+      var scaleMax = axisRange[1];
+    }
+
+    // Assign key to axis, creating or updating its ticks, grid lines, labels.
+    function drawAxis( axisIndex, key, duration ) {
+
+     var scale = d3.scale.linear()
+       .domain( [-5,5] ) // demo data range
+       .range( axisRange )
+    
+      scales[axisIndex] = scale;
+
+      var numTicks = 8;
+      var tickSize = 0.1;
+      var tickFontSize = 0.5;
+    }
+
+    // Update the data points (spheres) and stems.
+    function plotData( duration ) {
+      
+      if (!rows) {
+        console.log("no rows to plot.")
+        return;
+      }
+
+      var x = scales[0], y = scales[1], z = scales[2];
+      var sphereRadius = 1;
+
+      // Draw a sphere at each x,y,z coordinate.
+      var datapoints = scene.selectAll(".datapoint").data( rows );
+      datapoints.exit().remove()
+
+      var newDatapoints = datapoints.enter()
+        .append("transform")
+          .attr("class", "datapoint")
+          .attr("scale", [sphereRadius, sphereRadius, sphereRadius])
+        .append("shape");
+
+      newDatapoints
+        .append("appearance")
+        .append("material");
+
+      newDatapoints
+        .append("sphere")
+	    //.attr('radius', 1)
+        // Does not work on Chrome; use transform instead
+        //.attr("radius", sphereRadius)
+
+      datapoints.selectAll("shape appearance material")
+        .attr("diffuseColor", 'red' ) // 'steelblue'
+
+      datapoints.transition().ease(ease).duration(duration)
+        .attr("translation",
+		  function(row) { 
+            return x(row[axisKeys[0]]) + " " + y(row[axisKeys[1]]) + " "
+			  + z(row[axisKeys[2]])
+		  })
+
+      // Draw a stem from the x-z plane to each sphere at elevation y.
+      // This convention was chosen to be consistent with x3d primitive ElevationGrid. 
+	/*
+      var stems = scene.selectAll(".stem").data( rows );
+      stems.exit().remove();
+
+      var newStems = stems.enter()
+        .append("transform")
+          .attr("class", "stem")
+        .append("shape");
+      newStems
+        .append("appearance")
+        .append("material")
+          .attr("emissiveColor", "gray")
+      newStems
+        .append("polyline2d")
+        .attr("lineSegments", function(row) { return "0 1, 0 0"; })
+
+      stems.transition().ease(ease).duration(duration)
+          .attr("translation",
+		    function(row) {
+			  return x(row[axisKeys[0]]) + " 0 " + z(row[axisKeys[2]]);
+			})
+          .attr("scale",
+             function(row) { return [1, y(row[axisKeys[1]])]; })
+	*/
+    }
+
+    function initializeDataGrid() {
+      var rows = [];
+      // Follow the convention where y(x,z) is elevation.
+      //for (var x=-5; x<=5; x+=1) {
+      //  for (var z=-5; z<=5; z+=1) {
+      //    rows.push({x: x, y: 0, z: z});
+      // }
+      //}
+
+	{%   for x,y,z in connectome_coords %}
+	rows.push({x:   {{x}}/30.0, y: {{y}}/30.0, z: {{z}}/30.0})
+	{%   endfor %}
+
+      return rows;
+    }
+
+    function updateData() {
+      time += Math.PI/8;
+      if ( x3d.node() && x3d.node().runtime ) {
+        //for (var r=0; r<rows.length; ++r) {
+        //  var x = rows[r].x;
+        //  var z = rows[r].z;
+        //  rows[r].y = 5*( Math.sin(0.5*x + time) * Math.cos(0.25*z + time));
+        //}
+        plotData( defaultDuration );
+      } else {
+        console.log('x3d not ready.');
+      }
+    }
+
+    initializeDataGrid();
+    initializePlot();
+    setInterval( updateData, defaultDuration );
+  }
+  </script>
+
+  <h3>A webapp showcasing schizophrenic brain connectivity</h3>
+  </center>
+</div>
+
+<!-- Second Container -->
+<div class="container-fluid bg-3 text-center">
+  <h3 class="margin">Test Predictors</h3>
+  <p>Psychological tests can indicate presence of schizophrenia.</p>
+  {{m_fi_div|safe}}
+  {{m_fi_script|safe}}
+</div>
+
+<!-- Third Container -->
+<div class="container-fluid bg-2 text-center">
+  <h3 class="margin">Connectome</h3>
+  <p></p>
+  {{g_fi_div|safe}}
+  {{g_fi_script|safe}}
+</div>
+
+<!-- Third Container -->
+<div class="container-fluid bg-2 text-center">
+  <h3 class="margin">Brain Netowrk Features</h3>
+  <p>What are the most important graph properties?</p>
+  {{g_fi_div|safe}}
+  {{g_fi_script|safe}}
+</div>
+
+<!-- Third Container (Grid) -->
+<div class="container-fluid bg-3 text-center">
+  <h3 class="margin">Where To Find Me?</h3><br>
+  <div class="row">
+    <div class="col-sm-4">
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      <img src="birds1.jpg" class="img-responsive margin" style="width:100%" alt="Image">
+    </div>
+    <div class="col-sm-4">
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      <img src="birds2.jpg" class="img-responsive margin" style="width:100%" alt="Image">
+    </div>
+    <div class="col-sm-4">
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      <img src="birds3.jpg" class="img-responsive margin" style="width:100%" alt="Image">
+    </div>
+  </div>
+</div>
+
+<footer class="container-fluid bg-4 text-center">
+  <p>Contact <a href="http://nonabelian.github.io">nonabelian</a></p>
+</footer>
+<!-- Footer
+<footer class="container-fluid bg-4 text-center">
+  <p>Bootstrap Theme Made By <a href="http://www.w3schools.com">www.w3schools.com</a></p>
+</footer>
+-->
+</body>
+</html>
+
