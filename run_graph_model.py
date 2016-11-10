@@ -57,6 +57,28 @@ def featurize(graphs):
     return full_df
 
 
+def plot_feature_importances(df, clf, save_image=None):
+    col_fi = sorted(zip(df.columns, clf.feature_importances_),
+                    key=lambda x: x[1])[::-1]
+    fig = plt.figure(figsize=(20, 10))
+    ax = fig.add_subplot(111)
+
+    names = [name for name, fi in col_fi]
+    scores = [score for name, score in col_fi]
+    ax.bar(range(len(names)), scores, align='center')
+    ax.set_xlabel('Feature Names')
+    ax.set_ylabel('Feature Importance')
+    ax.set_title('Model feature_importance_')
+    ax.set_xlim([-1, len(names)])
+
+    plt.tight_layout()
+
+    if save_image:
+        plt.savefig(save_image)
+
+    plt.show()
+
+
 if __name__ == '__main__':
 
     graph_directory = 'data/graphs/'
@@ -128,4 +150,6 @@ if __name__ == '__main__':
                      'columns': df.columns.tolist()},
                     f)
 
+    save_image = 'images/models/graph_importances.png'
+    plot_feature_importances(df, gbc, save_image=save_image)
 

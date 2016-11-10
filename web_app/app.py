@@ -100,11 +100,6 @@ def plot_graph_feature_importances():
         else:
             proper_names.append(n)
 
-#    p = np.array(sorted(zip(proper_names, props, percents), key=lambda x: x[2])[::-1])
-#    print p
-#    for i in p:
-#        print i
-
     div, script = wp.plot_feature_importances(names, proper_names, percents)
 
     return div, script

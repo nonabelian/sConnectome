@@ -251,26 +251,30 @@
     setInterval( updateData, defaultDuration );
   }
   </script>
-
-  <h3>A webapp showcasing schizophrenic brain connectivity</h3>
+  <p>(MSDL Brain Atlas)<p>
+  <h3>A webapp showcasing schizophrenic brain connectivity and classification</h3>
+  <p><a href="https://openfmri.org/dataset/ds000115/">Data Source</a></p>
   </center>
 </div>
 
 <!-- Second Container -->
 <div class="container-fluid bg-3 text-center">
   <h3 class="margin">Test Predictors</h3>
-  <p>Psychological tests can indicate presence of schizophrenia.</p>
+  <p>Psychological tests can indicate (> 90% accuracy) presence of
+     schizophrenia. (Surprise!)
+  </p>
+  <p>Gradient Boosted Model:</p>
   {{m_fi_div|safe}}
   {{m_fi_script|safe}}
 </div>
 
 <!-- Third Container -->
 <div class="container-fluid bg-4 text-center" id="connectome">
-  <h3 class="margin">Connectome</h3>
+  <h3 class="margin">Connectome Predictors</h3>
 
-  <p>A representation of the interaction between areas of the brain.</p>
+  <p>A connectome represents the interaction between areas of the brain.</p>
 
-  <p>3D Connectome of Brain Regions:</p>
+  <p>3D Connectome:</p>
   <center>
   {{c3d_div|safe}}
   {{c3d_script|safe}}
@@ -279,13 +283,15 @@
 
 <!-- Third Container -->
 <div class="container-fluid bg-2 text-center">
-  <h3 class="margin">Brain Netowrk Features</h3>
+  <h3 class="margin">Brain Network Features</h3>
   <p>What are the most important graph properties?</p>
+  <p>Gradient Boosted Model:</p>
   {{g_fi_div|safe}}
   {{g_fi_script|safe}}
 </div>
 
 <!-- Third Container (Grid) -->
+<!--
 <div class="container-fluid bg-3 text-center">
   <h3 class="margin">Where To Find Me?</h3><br>
   <div class="row">
@@ -303,9 +309,9 @@
     </div>
   </div>
 </div>
-
+-->
 <footer class="container-fluid bg-4 text-center">
-  <p>Contact <a href="http://nonabelian.github.io">nonabelian</a></p>
+  <p>GitHub: <a href="http://nonabelian.github.io">nonabelian</a></p>
 </footer>
 <!-- Footer
 <footer class="container-fluid bg-4 text-center">

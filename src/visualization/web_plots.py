@@ -31,7 +31,9 @@ def plot_feature_importances(names, labels, importances):
 
     data = [trace0]
     layout = go.Layout(
-        xaxis=dict(range=[-0.5,3]),
+        xaxis=dict(title="Feature",
+                   range=[-0.5,2]),
+        yaxis=dict(title="Importance")
     )
 
     fig = go.Figure(data=data, layout=layout)
@@ -136,12 +138,12 @@ def plot_connectome3d(coords, names, covs):
             annotations=go.Annotations([
                         go.Annotation(
                         showarrow=False,
-                        text="sub001",
+                        text="Patient 'sub001'",
                         xref='paper',
                         yref='paper',
                         x=0,
                         y=0.1,
-                        xanchor='center',
+                        xanchor='left',
                         yanchor='bottom',
                         font=go.Font(size=14)
                         )
