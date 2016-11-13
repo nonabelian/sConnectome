@@ -51,6 +51,9 @@ be shown on a feature importance plot:
 
 ![graph importances](images/models/graph_importances_readme.png)
 
+Finally, I have compiled these results into an interactable web application:
+[sConnectome](http://sconnectome.elasticbeanstalk.com)
+
 ## Data
 
 For detailed description of the data I suggest looking at this project docs
