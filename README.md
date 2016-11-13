@@ -22,19 +22,23 @@ present report and the companion web application
 
 ## Results
 
-First I processed the data into standard form -- for comparison or
-aggregation of subject data, from task to task (or even across different
-subjects).
-I processed the raw data using an m4.4xlarge Amazon Web Services(AWS)
+First I processed the data into standard form, for comparison/aggregation
+of subject data across tasks (or even across different subjects).
+I processed the raw data using an m4.4xlarge Amazon Web Services (AWS)
 computer loaded with a customized NeuroDebian public AMI (ami-bffb65a8).
-I then used NiPype/FSL to 'applywarp' the filtered fMRI data to standard
+I then used NiPype/FSL on filtered fMRI data, transforming it to standard
 MNI format.  The following is a slice of fMRI for 'sub001' in MNI coordinates:
 
 ![sub001 stat map](images/models/sub001task001_stat_map.png).
 
-Below is a plot of the graph network connectome of patient 'sub001',
-aggregated across their task data, using
-the MSDL brain atlas.  The boldness of the red lines indicates the strength
+
+Next I filtered the subject data into MSDL brain atlas regions, in order to
+compute correlations between a manageable number of regions.
+I then fit each subject's task data with Nilearn's GroupSparseCovarianceCV
+method, in order to extract a sparse inverse covariance matrix.  This matrix
+can be thought of as a 'connectome', one for each subject.
+Below is a plot of the connectome for subject 'sub001'.
+The boldness of the red lines indicates the strength
 of correlation, whereas the blue lines indicate anticorrelation.
 
 ![sub001 connectome](images/models/sub001-connectome.png)
