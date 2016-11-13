@@ -19,7 +19,7 @@ presentation of such neuroscience results. This is demonstrated in the
 present report and the companion web application
 [sConnectome](http://sconnectome.elasticbeanstalk.com).
 
-![High Resolution fMRI](images/connectome3d)
+![High Resolution fMRI](images/connectome3d.png)
 
 ## Results
 
