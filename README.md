@@ -1,6 +1,6 @@
 # Connectomes of Schizophrenic and Healthy Individuals
 
-I investigate an fMRI dataset comparing healthy individuals to individuals
+I investigate an fMRI dataset comparing healthy individuals to those
 diagnosed with schizophrenia. The current belief is that connectivity between
 functional components is significantly different in individuals with (or
 susceptible to) schizophrenia. There are two main motivations for this project.
@@ -15,68 +15,39 @@ clustering of individuals.
 
 The second motivation is to create data-driven visualization and
 presentation of such neuroscience results. This is demonstrated in the
-present report and the companion web application [link].
+present report and the companion web application
+[sConnectome](http://sconnectome.elasticbeanstalk.com).
 
 ![High Resolution fMRI](images/highres_cutplane.png)
 
 ## Results
 
-Here is a plot of the graph network connectome of patient 'sub001', using
+First I processed the data into standard form -- for comparison or
+aggregation of subject data, from task to task (or even across different
+subjects).
+I processed the raw data using an m4.4xlarge Amazon Web Services(AWS)
+computer loaded with a customized NeuroDebian public AMI (ami-bffb65a8).
+I then used NiPype/FSL to 'applywarp' the filtered fMRI data to standard
+MNI format.  The following is a slice of fMRI for 'sub001' in MNI coordinates:
+
+![sub001 stat map](images/models/sub001task001_stat_map.png).
+
+Below is a plot of the graph network connectome of patient 'sub001',
+aggregated across their task data, using
 the MSDL brain atlas.  The boldness of the red lines indicates the strength
 of correlation, whereas the blue lines indicate anticorrelation.
 
 ![sub001 connectome](images/models/sub001-connectome.png)
 
+I then used NetworkX to extract graph features from all subject connectomes,
+paired with the labeled data from 'demographics.txt', to be piped into
+Scikit-Learn, for classification.
 
-## Running
+The model is not predictive at this stage, however, for demonstration
+purposes, we can ask "What are the important graph features?"  This can
+be shown on a feature importance plot:
 
-You will need to download the data and either extract to a 'data' folder
-in the current directory, or change the locations in the scripts. Once this is
-done, please follow the commands below to run the main scripts
-**to reproduce the results**.
-
-To generate the EDA figures:
-```
-	python run_eda.py
-```
-
-To explore the metadata and generate stats:
-```
-	python run_metadata_model.py
-```
-
-To fit the fMRI model and generate corresponding figures -- this may take a
-while, since the files are large and there is quite a bit of processing:
-```
-	python run_graph_model.py
-```
-
-To run the web app:
-```
-	python run_web_app.py
-```
-
-### Requirements
-
-#### Python (2.7)
-
-* Pandas -- Data manipulation (e.g. demographics.txt)
-* NewtorkX -- Graph network package.
-* Scikit-learn -- Machine learning in python.
-* NiBabel -- Working with NIfTI files.
-* Nilearn -- Machine learning for neuroscience data.
-* NiPy -- Neuroscience data manipulation tools in python.
-* Nipype -- Interface with existing neuroscience software (e.g. SPM, FSL).
-* Matplotlib -- Generic 2D plotting and animations.
-* Mayavi -- 2D/3D visualization.
-
-#### R (3.3.2)
-
-* TDA -- Topological data analysis package.
-
-#### Programs
-
-* FSL
+![graph importances](images/models/graph_importances_readme.png)
 
 ## Data
 
@@ -118,3 +89,69 @@ I would like to thank the investigators for making the data publicly available:
 
 I would also like to thank the creators of Nilearn, for making a wonderful
 piece of well-documented software.
+
+## Running
+
+You will need to download the data and either extract to a 'data' folder
+in the current directory, or change the locations in the scripts. Once this is
+done, please follow the commands below to run the main scripts
+**to reproduce the results**.
+
+To test the code, do the following:
+```
+	cd tests
+	nosetests
+```
+
+To generate the EDA figures:
+```
+	python run_eda.py
+```
+
+To explore the metadata and generate stats:
+```
+	python run_metadata_model.py
+```
+
+On AWS NeuroDebian (ami-bffb65a8) run the following -- it will take quite
+a while since 'generate_graphs' is preprocessing and saving the MNI files,
+and then fitting the GroupSparseCovarianceCV:
+```
+	python scripts/scrape_web_data.py
+	cd data/; tar -zxvf *; cd ../
+	python scripts/generate_graphs.py
+	python scripts/generate_stat_map_plots.py
+	python scripts/generate_connectome_plots.py
+```
+
+Once the 'data/graphs' and 'data/dataframes' are created, run
+
+```
+	python run_graph_model.py
+```
+
+To run the web app:
+```
+	python run_web_app.py
+```
+
+### Requirements
+
+#### Python (2.7)
+
+* Pandas -- Data manipulation (e.g. demographics.txt)
+* NewtorkX -- Graph network package.
+* Scikit-learn -- Machine learning in python.
+* NiBabel -- Working with NIfTI files.
+* Nilearn -- Machine learning for neuroscience data.
+* NiPy -- Neuroscience data manipulation tools in python.
+* Nipype -- Interface with existing neuroscience software (e.g. SPM, FSL).
+* Matplotlib -- Generic 2D plotting and animations.
+* Mayavi -- 2D/3D visualization.
+* Flask, Jinja2 -- Web app framwork.
+* Plot.ly -- Web visualization.
+* bs4 -- BeautifulSoup
+
+#### Programs
+
+* FSL

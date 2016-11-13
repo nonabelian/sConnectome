@@ -1,155 +1,71 @@
 import os
-import cPickle as pickle
 
 import pandas as pd
-import numpy as np
-import scipy.stats as scs
-import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.cross_validation import train_test_split
-from sklearn.metrics import classification_report
 
 from src.process_data.demographic_data import DemographicData
-from src.models.utils import get_fi_sorted
-
-
-def load_graphs(d):
-    files = os.listdir(d)
-
-    names = []
-    graphs = []
-
-    for filename in files:
-        name = filename.split(os.sep)[-1][0:6]
-
-        ofilename = os.path.join(d, filename)
-
-        with open(ofilename) as f:
-            graphs.append(pickle.load(f))
-            names.append(name)
-
-    return names, graphs
-
-
-def featurize(graphs):
-
-    dfs = []
-
-    for graph in graphs:
-        df = pd.DataFrame()
-        for prop, feature in graph['properties'].iteritems():
-
-            # If dictionary, create all columns
-            if isinstance(feature, dict):
-                for k, v in feature.iteritems():
-                    colname = prop + str(k)
-                    df[colname] = [v]
-            elif isinstance(feature, float) or isinstance(feature, int):
-                df[prop] = [feature]
-            else:
-                print 'Unexpected column type: ', feature
-
-        dfs.append(df.copy())
-
-    full_df = pd.concat(dfs)
-
-    return full_df
-
-
-def plot_feature_importances(df, clf, save_image=None):
-    col_fi = sorted(zip(df.columns, clf.feature_importances_),
-                    key=lambda x: x[1])[::-1]
-    fig = plt.figure(figsize=(20, 10))
-    ax = fig.add_subplot(111)
-
-    names = [name for name, fi in col_fi]
-    scores = [score for name, score in col_fi]
-    ax.bar(range(len(names)), scores, align='center')
-    ax.set_xlabel('Feature Names')
-    ax.set_ylabel('Feature Importance')
-    ax.set_title('Model feature_importance_')
-    ax.set_xlim([-1, len(names)])
-
-    plt.tight_layout()
-
-    if save_image:
-        plt.savefig(save_image)
-
-    plt.show()
+from src.models.graph_model import GraphModel
+from src.models.utils import load_graphs
+from src.models.utils import featurize
 
 
 if __name__ == '__main__':
 
-    graph_directory = 'data/graphs/'
-    demographic_data = 'data/ds115_metadata/demographics.txt'
-    model_directory = 'data/models/'
+    graph_directory = os.path.join('data', 'graphs')
+    demographic_data = os.path.join('data', 'ds115_metadata',
+                                    'demographics.txt')
+    model_directory = os.path.join('data', 'models')
     model_file = 'graph_model.pkl'
-    dataframe_directory = 'data/dataframes/'
+    dataframe_directory = os.path.join('data', 'dataframes')
     dataframe_file = 'graph_dataframe.pkl'
 
     names, graphs = load_graphs(graph_directory)
 
     df_graphs = featurize(graphs)
+
+    # Set the column to merge on:
     df_graphs['subcode'] = names
 
     dd = DemographicData(demographic_data, 'condit')
 
-    df_dd = dd.df
+    mapping1 = None
+    mapping2 = {'SCZ': 'SCZ', 'SCZ-SIB': 'rSCZ', 'CON': 'CON', 'CON-SIB': 'CON'}
+    mapping3 = {'SCZ': 'SCZ', 'rSCZ': 'SCZ', 'CON': 'CON', 'CON-SIB': 'CON'}
 
-    df_labels = df_dd[['subcode', 'condit']].copy()
+    mappings = [mapping1, mapping2, mapping3]
 
-    df = pd.merge(df_graphs, df_labels, how='inner')
+    for mapping in mappings:
+        dd.group(mapping)
 
-    del df['subcode']
+        # Merge on 'subcode' and get rid of it
+        df_labels = dd.df[['subcode', 'condit']].copy()
+        df = pd.merge(df_graphs, df_labels, how='inner').copy()
+        del df['subcode']
 
-    Y = df.pop('condit').values
-    X = df.values
+        rfc = RandomForestClassifier(n_estimators=100, class_weight='balanced')
+        gbc = GradientBoostingClassifier(n_estimators=200)
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2,
-                                                        random_state=1,
-                                                        stratify=Y)
+        gbc_gm = GraphModel(gbc, df)
+        rfc_gm = GraphModel(rfc, df)
+        
+        gbc_gm.run()
+        rfc_gm.run()
 
-    rfc = RandomForestClassifier(n_estimators=100, class_weight='balanced')
-    gbc = GradientBoostingClassifier(n_estimators=200)
+        print gbc_gm.report()
+        print rfc_gm.report()
 
-    gbc.fit(X_train, Y_train)
-    rfc.fit(X_train, Y_train)
-
-    print 'GBC Score:', gbc.score(X_test, Y_test)
-    print 'RFC Score:', rfc.score(X_test, Y_test)
-
-    predictions = gbc.predict(X_test)
-    print classification_report(Y_test, predictions)
-
-    feature_importances = get_fi_sorted(df.columns.tolist(),
-                                        gbc.feature_importances_)
-
-    print 'Top 5 Features:'
-    for fi in feature_importances[:5]:
-        print fi
-
-    # Pickle the model:
-    if not os.path.exists(model_directory):
-        os.makedirs(model_directory)
-
-    save_file = os.path.join(model_directory, model_file)
-
-    with open(save_file, 'w') as f:
-        pickle.dump(gbc, f)
+    # Pickle the final Gradient Boosting model:
+    gbc_gm.save_model(model_directory, model_file)
 
     # Pickle the DataFrame
-    if not os.path.exists(dataframe_directory):
-        os.makedirs(dataframe_directory)
+    gbc_gm.save_data(dataframe_directory, dataframe_file)
 
-    save_file = os.path.join(dataframe_directory, dataframe_file)
+    # Plot
+    save_image = os.path.join('images', 'models',
+                              'graph_importances_readme.png')
+    gbc_gm.plot_feature_importances(save_image=save_image)
 
-    with open(save_file, 'w') as f:
-        pickle.dump({'data': X,
-                     'target': Y,
-                     'columns': df.columns.tolist()},
-                    f)
-
-    save_image = 'images/models/graph_importances.png'
-    plot_feature_importances(df, gbc, save_image=save_image)
-
+#####################
+# End of File
+#####################

@@ -287,7 +287,7 @@ class fMRITaskData(object):
             print 'Loading:', sf
             self.filtered_mni_image = [sf, nib.load(sf)]
         else:
-            print 'Path does not exist.  Try generating MNI first.'
+            print 'Path ' + sf + ' does not exist.  Try generating MNI first.'
 
 
     def save_mni_data(self, save_file=None):
@@ -352,7 +352,7 @@ def generate_mni(tc, force=False):
 
     if os.path.exists(sf) and not force:
         print "MNI File Exists: Skipping ..."
-#        tc.filtered_mni_image = [sf, nib.load(sf)]
+        tc.filtered_mni_image = [sf, nib.load(sf)]
     else:
         print "Generating MNI -- this will take some time..."
         aw = fsl.ApplyWarp()

@@ -27,7 +27,7 @@ class GraphExperimentData(object):
         self.maps = maps
         self.properties = properties
 
-        self.graph_data = self.load_subject_graphs()
+        self.graph_data = self.initiate_subject_graphs()
 
         self.working_directory = self._set_wd()
 
@@ -36,7 +36,7 @@ class GraphExperimentData(object):
         return os.path.join(self.fmri_data.working_directory, 'graphs')
 
 
-    def load_subject_graphs(self):
+    def initiate_subject_graphs(self):
         ''' Loads a graph for each subject data in fMRIExperimentData and
             stores in a list.
             Returns the list of graphs -- one per subject, or averaged over
@@ -55,44 +55,28 @@ class GraphExperimentData(object):
         return graphs
 
 
-    def load_graph_data(self, graph_data_file=None):
+    def load_graph_data(self, graph_data_directory=None):
+        if not graph_data_directory:
+            d = self.working_directory
+        else:
+            d = graph_data_directory
 
-        if not graph_data_file:
-            load_file = os.path.join(self.working_directory, 'graph_data.pkl')
+        files = os.listdir(d)
 
-        if not os.path.exists(load_file):
-            raise ValueError("ValueError: Graph file does not exist!")
+        names = []
+        graphs = []
 
-        with open(load_file) as f:
-            data = pickle.load(f)
+        for filename in files:
+            # Pull off the subject id: always 'subNNN' + '_....pkl'
+            name = filename.split('_')[0]
 
-        for sub, gd in self.graph_data.iteritems():
-            # Set the graph data
-            gd.graph = data[sub]['graph']
-            gd.norm_cov = data[sub]['norm_cov']
-            gd.graph_properties = data[sub]['properties']
+            ofilename = os.path.join(d, filename)
 
-
-    def save_graph_data(self, save_directory=None):
-
-        if save_directory:
-            self.working_directory = save_directory
-
-        data = {}
-
-        for n, gd in self.graph_data.iteritems():
-            data[n] = {}
-            data[n]['graph'] = gd.graph
-            data[n]['properties'] = gd.graph_properties
-            data[n]['norm_cov'] = gd.norm_cov
-
-        if not os.path.exists(self.working_directory):
-            os.makedirs(self.working_directory)
-
-        save_file = os.path.join(self.working_directory, 'graph_data.pkl')
-
-        with open(save_file, 'w') as f:
-            pickle.dump(data, f)
+            with open(ofilename) as f:
+                data = pickle.load(f)
+                self.graph_data[name].graph = data['graph']
+                self.graph_data[name].properties = data['properties']
+                self.graph_data[name].norm_cov = data['norm_cov']
 
 
     def generate_graphs_sequential(self):
@@ -160,31 +144,12 @@ class GraphSubjectData(object):
 #                    'eigenvector_centrality', \
                     'current_flow_closeness_centrality', \
                     'current_flow_betweenness_centrality', \
-                    'average_shortest_path_length', \
-                    'diameter', \
-                    'radius', \
-                    'eccentricity']
-#                    'efficency', \
-#                    'global_efficiency']
+                    'average_shortest_path_length']
+#                    'diameter', \
+#                    'radius', \
+#                    'eccentricity']
 
         return properties
-
-
-    def graph_to_edge_dict(self, graph):
-        ''' Utility funciton to create an 'edge dict'.
-            INPUT: nx.Graph
-            OUTPUT: defaultdict: tuple -> float (weight)
-        '''
-        edge_dict = defaultdict(float)
-
-        for n1, n2w in graph.iteritems():
-            for n2, w in n2w.iteritems():
-                if (n2, n1) in edge_dict.keys():
-                    continue
-
-                edge_dict[(n1, n2)] = w['weight']
-
-        return edge_dict
 
 
     def collect_ts_confounds(self):
@@ -207,6 +172,7 @@ class GraphSubjectData(object):
     def calculate_graph_properties(self):
         for p in self.properties:
             self.graph_properties[p] = getattr(nx.algorithms, p)(self.graph)
+
 
     def save_graph_data(self, save_directory=None, force=False):
 
@@ -246,11 +212,6 @@ def generate_graphs_parallel(ged, cpus=None):
         OUTPUT: GraphExperimentData
     '''
 
-    if os.path.exists(ged.working_directory):
-        print "Graph data exists! Skipping..."
-        return ged
-
-
     if cpus:
         ncpus = cpus
     else:
@@ -266,7 +227,6 @@ def generate_graphs_parallel(ged, cpus=None):
 
     for name, proc in multi_proc:
         new_gd = proc.get()
-        
         new_ged.graph_data[name] = new_gd
 
     return new_ged
@@ -300,6 +260,14 @@ def generate_graph_threaded(gd):
     max_abs = np.max(np.fabs(m.precisions_[..., 0]))
     gd.norm_cov = m.precisions_[..., 0] / max_abs
 
-    gd.graph = nx.Graph(-gd.norm_cov)
+    # NOTE: Keeping the negative covariance values for the networkx Graph
+    graph_mat = cov_to_mat(gd.norm_cov, sign_to_keep=-1)
+
+    gd.graph = nx.Graph(graph_mat)
 
     return gd
+
+def cov_to_mat(mat, sign_to_keep=-1):
+    gmat = sign_to_keep * mat
+    gmat[gmat < 0] = 0
+    return gmat

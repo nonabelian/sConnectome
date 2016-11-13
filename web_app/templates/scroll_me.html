@@ -13,14 +13,9 @@
   <!-- Plotly -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-  <!-- Bokeh! -->
-  <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.css" type="text/css" />
-  <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.12.0.min.js"></script>
-
   <!-- D3 and X3DOM -->
   <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
   <script type="text/javascript" src="http://x3dom.org/x3dom/dist/x3dom-full.js"></script>
-  <script type="text/javascript" src="scatter_plot_3d_demo.js"></script>
   <link rel="stylesheet" type="text/css" href="http://www.x3dom.org/download/dev/x3dom.css"/>
 
   <style>
@@ -80,9 +75,9 @@
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#">Graph</a></li>
+        <li><a href="#tests">Tests</a></li>
         <li><a href="#connectome">Connectome</a></li>
-        <li><a href="#">Feature Importance</a></li>
+        <li><a href="#fi">Feature Importance</a></li>
       </ul>
     </div>
   </div>
@@ -201,9 +196,6 @@
 
       newDatapoints
         .append("sphere")
-	    //.attr('radius', 1)
-        // Does not work on Chrome; use transform instead
-        //.attr("radius", sphereRadius)
 
       datapoints.selectAll("shape appearance material")
         .attr("diffuseColor", 'red' ) // 'steelblue'
@@ -218,16 +210,11 @@
 
     function initializeDataGrid() {
       var rows = [];
-      // Follow the convention where y(x,z) is elevation.
-      //for (var x=-5; x<=5; x+=1) {
-      //  for (var z=-5; z<=5; z+=1) {
-      //    rows.push({x: x, y: 0, z: z});
-      // }
-      //}
 
-	{%   for x,y,z in connectome_coords %}
-	rows.push({x:   {{x}}/30.0, y: {{y}}/30.0, z: {{z}}/30.0})
-	{%   endfor %}
+	  // Jinja2 to setup the coordinates
+	  {%   for x,y,z in connectome_coords %}
+	  rows.push({x:   {{x}}/30.0, y: {{y}}/30.0, z: {{z}}/30.0})
+	  {%   endfor %}
 
       return rows;
     }
@@ -235,11 +222,6 @@
     function updateData() {
       time += Math.PI/8;
       if ( x3d.node() && x3d.node().runtime ) {
-        //for (var r=0; r<rows.length; ++r) {
-        //  var x = rows[r].x;
-        //  var z = rows[r].z;
-        //  rows[r].y = 5*( Math.sin(0.5*x + time) * Math.cos(0.25*z + time));
-        //}
         plotData( defaultDuration );
       } else {
         console.log('x3d not ready.');
@@ -257,8 +239,8 @@
   </center>
 </div>
 
-<!-- Second Container -->
-<div class="container-fluid bg-3 text-center">
+<!-- Psych Tests -->
+<div class="container-fluid bg-3 text-center" id="tests">
   <h3 class="margin">Test Predictors</h3>
   <p>Psychological tests can indicate (> 90% accuracy) presence of
      schizophrenia. (Surprise!)
@@ -268,7 +250,7 @@
   {{m_fi_script|safe}}
 </div>
 
-<!-- Third Container -->
+<!-- 3D Connectome -->
 <div class="container-fluid bg-4 text-center" id="connectome">
   <h3 class="margin">Connectome Predictors</h3>
 
@@ -281,43 +263,16 @@
   </center>
 </div>
 
-<!-- Third Container -->
-<div class="container-fluid bg-2 text-center">
-  <h3 class="margin">Brain Network Features</h3>
-  <p>What are the most important graph properties?</p>
+<!-- Graph Properties -->
+<div class="container-fluid bg-2 text-center" id="fi">
+  <h3 class="margin">Important graph properties?</h3>
   <p>Gradient Boosted Model:</p>
   {{g_fi_div|safe}}
   {{g_fi_script|safe}}
 </div>
-
-<!-- Third Container (Grid) -->
-<!--
-<div class="container-fluid bg-3 text-center">
-  <h3 class="margin">Where To Find Me?</h3><br>
-  <div class="row">
-    <div class="col-sm-4">
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-      <img src="birds1.jpg" class="img-responsive margin" style="width:100%" alt="Image">
-    </div>
-    <div class="col-sm-4">
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-      <img src="birds2.jpg" class="img-responsive margin" style="width:100%" alt="Image">
-    </div>
-    <div class="col-sm-4">
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-      <img src="birds3.jpg" class="img-responsive margin" style="width:100%" alt="Image">
-    </div>
-  </div>
-</div>
--->
 <footer class="container-fluid bg-4 text-center">
   <p>GitHub: <a href="http://nonabelian.github.io">nonabelian</a></p>
 </footer>
-<!-- Footer
-<footer class="container-fluid bg-4 text-center">
-  <p>Bootstrap Theme Made By <a href="http://www.w3schools.com">www.w3schools.com</a></p>
-</footer>
--->
 </body>
 </html>
 

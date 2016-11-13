@@ -21,7 +21,7 @@ def testfMRIExperimentData():
                    act))
 
     exp = True
-    actual = isinstance(fed.subject_fmri_data[0], fMRISubjectData)
+    act = isinstance(fed.subject_fmri_data[0], fMRISubjectData)
     n.assert_equal(exp, act, msg=get_message('Subject fMRI Type Check', exp,
                    act))
 

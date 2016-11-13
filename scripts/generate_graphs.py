@@ -34,9 +34,6 @@ if __name__ == '__main__':
 #    ged.generate_graphs_sequential()
     
     for name, gd in ged.graph_data.iteritems():
-#        if name == 'sub023':
-#            continue
-
         fp = os.path.join('data/graphs/', name + '_graph_data.pkl')
         if os.path.exists(fp):
             print "File Exists", fp, ": Skipping..."
@@ -51,5 +48,3 @@ if __name__ == '__main__':
 
         gd.calculate_graph_properties()
         gd.save_graph_data(save_directory='data/graphs/')
-
-#    ged.save_graph_data()
