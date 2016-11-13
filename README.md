@@ -60,7 +60,7 @@ For detailed description of the data I suggest looking at this project docs
 ([Directory Structure](docs/Directory_Structure.md) and
 [Data Description](docs/Data_Description.md)).
 
-The data are located at https://openfmri.org/dataset/ds000115/ [3].
+The data are located at [3].
 
 The AWS hosted files consist of raw fMRI images for 102 patients in addition
 to many preprocessed derivatives (processed with FSL).  The data comes with
@@ -84,7 +84,7 @@ The data present two distinct challenges:
 
 [2] http://www.ncbi.nlm.nih.gov/pubmed/21193174
 
-[3] This data was obtained from the OpenfMRI database. Its accession number is ds000115
+[3] This data was obtained from the OpenfMRI database. Its accession number is ds000115. https://openfmri.org/dataset/ds000115/
 
 ## Acknowledgments
 I would like to thank the investigators for making the data publicly available:
