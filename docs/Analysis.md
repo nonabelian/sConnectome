@@ -14,8 +14,8 @@ to cross validate.
 I used a gradient boosting classifier from Scikit-learn on a stratified
 train-test split to classify and predict.  I considered two situations:
 
-1. Binary classification: 'SCZ' versus not 'SCZ' labeled data
-2. Multiclass: Four classes {'SCZ', 'SCZ-SIB', 'CON', 'CON-SIB'}.
+1. Binary classification: {'SCZ', 'CON'} labeled data
+2. Multiclass: Three classes {'SCZ', 'SCZ-SIB', 'CON', 'CON'}.
 
 
 ### fMRI Analysis
@@ -23,11 +23,15 @@ train-test split to classify and predict.  I considered two situations:
 #### Preprocessing
 
 I have not done much more preprocessing than was implemented in the original
-FSL pipeline -- FEAT, FLIRT, FNIRT. I used the affine and warp transformations
-to transform the data into MNI space.
+FSL pipeline -- FEAT, FLIRT, FNIRT.
+I processed the raw data using an m4.4xlarge Amazon Web Services (AWS)
+computer loaded with a customized NeuroDebian public AMI (ami-bffb65a8). I
+then used NiPype/FSL on filtered fMRI data, transforming it to standard MNI
+format. I used the affine and warp transformations to transform the data into
+MNI space.
 
 I use an MSDL atlas to segment the brain into regions.
-I then use graph lasso and Nilearn's GraphSparseCovarianceCV to calculate
+I then use Nilearn's GraphSparseCovarianceCV to calculate
 covariance and sparse inverse covarianc, as methods to examine the functional
 connectome.  This results in a graph network for eash subject, aggregated
 over all tasks.
@@ -43,5 +47,8 @@ I add the following graph features to the labeled dataset:
 * Current flow betweenness
 * Average shortest path length
 * Diameter
-* Efficiency and global efficiency
 
+I then use Scikit-learn's GradientBoostingClassifier to fit a model to the
+data.  The model has not turned out to be predictive, yet.  I suspect that
+working on fMRI preprocessing and signal/noise analysis might yield a
+predictive model.  This would be very interesting!

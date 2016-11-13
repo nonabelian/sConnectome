@@ -7,8 +7,9 @@ susceptible to) schizophrenia[1]. There are two main motivations for this
 project.
 
 The first is to look for functioning neurological processes that may
-indicate illness or susceptibility to illness -- schizophrenia, in our case.
-I analyze fMRI data by constructing graph networks representing region
+indicate illness or susceptibility to illness -- schizophrenia, in our case
+-- using the dataset from references [1,3].
+I analyze the fMRI data by constructing graph networks representing region
 connectivity/correlation. I then investigate *which graph network
 features are the most important predictors*. The most important predictors
 will have the most impact on improving the accuracy of classification or
@@ -25,18 +26,14 @@ present report and the companion web application
 
 First I processed the data into standard form, for comparison/aggregation
 of subject data across tasks (or even across different subjects).
-I processed the raw data using an m4.4xlarge Amazon Web Services (AWS)
-computer loaded with a customized NeuroDebian public AMI (ami-bffb65a8).
-I then used NiPype/FSL on filtered fMRI data, transforming it to standard
-MNI format.  The following is a slice of fMRI for 'sub001' in MNI coordinates:
+For more details on the analysis, please see [Analysis](docs/Analysis.md).
+The following is a slice of fMRI for 'sub001' in MNI coordinates:
 
 ![sub001 stat map](images/models/sub001task001_stat_map.png).
 
 
 Next I filtered the subject data into MSDL brain atlas regions, in order to
-compute correlations between a manageable number of regions.
-I then fit each subject's task data with Nilearn's GroupSparseCovarianceCV
-method, in order to extract a sparse inverse covariance matrix.  This matrix
+compute correlations between a manageable number of regions. This matrix
 can be thought of as a 'connectome', one for each subject.
 Below is a plot of the connectome for subject 'sub001'.
 The boldness of the red lines indicates the strength
@@ -57,7 +54,8 @@ be shown on a feature importance plot:
 ## Data
 
 For detailed description of the data I suggest looking at this project docs
-[link(s)].
+([Directory Structure](docs/Directory_Structure.md) and
+[Data Description](docs/Data_Description.md)).
 
 The data are located at https://openfmri.org/dataset/ds000115/ [3].
 

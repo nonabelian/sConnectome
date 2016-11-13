@@ -138,7 +138,7 @@ def plot_connectome3d(coords, names, covs):
             annotations=go.Annotations([
                         go.Annotation(
                         showarrow=False,
-                        text="Patient 'sub001'",
+                        text="Subject 'sub001'",
                         xref='paper',
                         yref='paper',
                         x=0,
