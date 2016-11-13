@@ -3,7 +3,8 @@
 I investigate an fMRI dataset comparing healthy individuals to those
 diagnosed with schizophrenia. The current belief is that connectivity between
 functional components is significantly different in individuals with (or
-susceptible to) schizophrenia. There are two main motivations for this project.
+susceptible to) schizophrenia[1]. There are two main motivations for this
+project.
 
 The first is to look for functioning neurological processes that may
 indicate illness or susceptibility to illness -- schizophrenia, in our case.
@@ -18,7 +19,7 @@ presentation of such neuroscience results. This is demonstrated in the
 present report and the companion web application
 [sConnectome](http://sconnectome.elasticbeanstalk.com).
 
-![High Resolution fMRI](images/highres_cutplane.png)
+![High Resolution fMRI](images/connectome3d)
 
 ## Results
 
