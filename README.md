@@ -18,7 +18,7 @@ clustering of individuals.
 The second motivation is to create data-driven visualization and
 presentation of such neuroscience results. This is demonstrated in the
 present report and the companion web application
-[sConnectome](http://sconnectome.elasticbeanstalk.com).
+[sConnectome](http://ec2-54-146-103-117.compute-1.amazonaws.com:8080).
 
 ![High Resolution fMRI](images/connectome3d.png)
 
@@ -52,7 +52,7 @@ be shown on a feature importance plot:
 ![graph importances](images/models/graph_importances_readme.png)
 
 Finally, I have compiled these results into an interactable web application:
-[sConnectome](http://sconnectome.elasticbeanstalk.com)
+[sConnectome](http://ec2-54-146-103-117.compute-1.amazonaws.com:8080)
 
 ## Data
 
