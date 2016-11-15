@@ -1,7 +1,7 @@
 ![Logo](images/logo.png)
 
 [![TeamCity CodeBetter](https://img.shields.io/teamcity/codebetter/bt428.svg)]()
-![Coverage](images/coverage-badge.svg)
+[![Coverage](https://github.com/nonabelian/sConnectome/blob/master/images/coverage-badge.svg)]()
 
 # Connectomes of Schizophrenic and Healthy Individuals
 
