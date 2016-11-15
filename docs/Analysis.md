@@ -26,9 +26,9 @@ multiclass classification problems.
 
 #### Preprocessing
 
-I have applied some simple preprocessing available in Nilearn -- detrending,
+I applied some simple preprocessing available in Nilearn -- detrending,
 standardization/normalization, high pass filter (0.01), removing confounds.
-This is in addition to the FSL pipeline -- FEAT, FLIRT, FNIRT -- that was
+This was in addition to the FSL pipeline -- FEAT, FLIRT, FNIRT -- that was
 applied to the data by the authors of the dataset.
 I processed the raw data using an m4.4xlarge Amazon Web Services (AWS)
 computer loaded with a customized NeuroDebian public AMI (ami-bffb65a8). I
@@ -37,7 +37,7 @@ nonlinear warping transformations into standard MNI coordinate space.
 
 I then used an MSDL atlas to segment the brain into regions, via Nilearn's
 NiftiMapsMasker.  I computed covariance and sparse inverse covariance using
-GraphSparseCovarianceCV, as methods to examine the functional
+GraphSparseCovarianceCV, as a method to examine the functional
 connectome.  This resulted in a graph network for eash subject, aggregated
 over all tasks.
 
@@ -59,6 +59,6 @@ data, considering a few cases:
 2. Multiclass: Three classes {'SCZ', 'SCZ-SIB', 'CON', 'CON'}.
 3. Multiclass: Four classes {'SCZ', 'SCZ-SIB', 'CON', 'CON-SIB'}.
 
-The model has not turned out to be predictive, yet.  I suspect that
+The model is no predictive, yet.  I suspect that
 working on fMRI preprocessing and signal/noise analysis might yield a
 predictive model.  This would be very interesting!
