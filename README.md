@@ -1,4 +1,4 @@
-![Logo]('images/logo.png')
+![Logo](images/logo.png)
 
 [![TeamCity CodeBetter](https://img.shields.io/teamcity/codebetter/bt428.svg)]()
 [![Coverage](images/coverage-badge.svg)]()
