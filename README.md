@@ -5,17 +5,17 @@
 
 # Brain Connectivity of Schizophrenic Individuals
 
-I investigate an fMRI dataset comparing healthy individuals to those
+I investigate an fMRI dataset, comparing healthy individuals to those
 diagnosed with schizophrenia. The current belief is that connectivity between
 functional components, known as a 'connectome', is significantly different in
-individuals with (or susceptible to) schizophrenia[1]. There are two main
+individuals with (or susceptible to) schizophrenia [1]. There are two main
 motivations for this project.
 
 The first is to look for functioning neurological processes that may
 indicate illness or susceptibility to illness -- schizophrenia, in our case
 -- using the dataset from references [1,3].
-I analyze the fMRI data by constructing graph networks representing region
-connectivity/correlation. I then investigate *which graph network
+I analyze the fMRI data by constructing networks representing region
+connectivity/correlation. I then investigate *which network
 features are the most important predictors*. The most important predictors
 will have the most impact on improving the accuracy of classification or
 clustering of individuals.
@@ -48,8 +48,8 @@ of correlation, whereas the blue lines indicate anticorrelation.
 
 I then used NetworkX to extract graph features from all subject connectomes,
 paired with the labeled data from 'demographics.txt', to be piped into
-Scikit-Learn, for classification.  I attempt to classify schizophrenic/healthy,
-in addition to schizophrenic/(healthy)schizophrenic's sibling/heathy.
+Scikit-Learn, for classification.  I classified based on schizophrenic/healthy,
+in addition to schizophrenic/(healthy)schizophrenic's sibling/healthy.
 
 The model is not predictive at this stage, however, for demonstration
 purposes, we can ask "What are the important graph features?"  This can
