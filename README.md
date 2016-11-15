@@ -85,9 +85,7 @@ the subjects.
 
 The data present two distinct challenges:
 
-* Unfortunately the authors of the dataset have not also published the resting
-  state data. This makes it difficult/impossible to separate resting state
-  activity from task-based activity.
+* The authors of the dataset have not also published the resting state data.
 * The dataset is actually small.  There are only 102 samples. But the data
   are also big -- there are 49 columns of data in 'demographic.txt' in addition
   to the fMRI which is 3 (tests) * (64 * 64 * 36) (spatial) * 137 (temporal)
