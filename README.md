@@ -29,7 +29,8 @@ present report and the companion web application
 
 ## Results
 
-First I processed the data into standard form, for comparison/aggregation
+First I processed the data into standard form (detrending, removing confounds,
+etc.), for comparison/aggregation
 of subject data across tasks (or even across different subjects).
 For more details on the analysis, please see [Analysis](docs/Analysis.md).
 The following is a slice of fMRI for 'sub001' in MNI coordinates:

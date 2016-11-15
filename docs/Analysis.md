@@ -27,8 +27,9 @@ multiclass classification problems.
 
 #### Preprocessing
 
-I have not done much more preprocessing than was implemented in the original
-FSL pipeline -- FEAT, FLIRT, FNIRT.
+I have applied some simple preprocessing available in Nilearn -- detrending,
+standardization/normalization, high pass filter (0.01), removing confounds.
+This is in addition to the FSL pipeline -- FEAT, FLIRT, FNIRT.
 I processed the raw data using an m4.4xlarge Amazon Web Services (AWS)
 computer loaded with a customized NeuroDebian public AMI (ami-bffb65a8). I
 then used NiPype/FSL on filtered fMRI data, transforming it via affine and
