@@ -1,3 +1,8 @@
+![Logo]('images/logo.png')
+
+[![TeamCity CodeBetter](https://img.shields.io/teamcity/codebetter/bt428.svg)]()
+[![Coverage](images/coverage-badge.svg)]()
+
 # Connectomes of Schizophrenic and Healthy Individuals
 
 I investigate an fMRI dataset comparing healthy individuals to those
@@ -43,13 +48,23 @@ of correlation, whereas the blue lines indicate anticorrelation.
 
 I then used NetworkX to extract graph features from all subject connectomes,
 paired with the labeled data from 'demographics.txt', to be piped into
-Scikit-Learn, for classification.
+Scikit-Learn, for classification.  I attempt to classify schizophrenic/healthy,
+in addition to schizophrenic/(healthy)schizophrenic's sibling/heathy.
 
 The model is not predictive at this stage, however, for demonstration
 purposes, we can ask "What are the important graph features?"  This can
 be shown on a feature importance plot:
 
 ![graph importances](images/models/graph_importances_readme.png)
+
+This sort of analysis has potentially interesting implications.  For example,
+the above graph says that 'current flow closeness centrality' of region 29,
+which corresponds to brain region 'Sup Front S', is one of the most important
+features for distinguishing schizophrenia. This could be important for
+understanding, diagnosing, and treating schizophrenia.
+
+For future analysis, I am looking forward to performing signal/noise analysis,
+and other preprocessing, to see if I can make the model predictive.
 
 Finally, I have compiled these results into an interactable web application:
 [sConnectome](http://ec2-54-146-103-117.compute-1.amazonaws.com:8080)
@@ -105,8 +120,7 @@ done, please follow the commands below to run the main scripts
 
 To test the code, do the following:
 ```
-	cd tests
-	nosetests
+	python run_tests.py
 ```
 
 To generate the EDA figures:
@@ -157,6 +171,8 @@ To run the web app:
 * Flask, Jinja2 -- Web app framwork.
 * Plot.ly -- Web visualization.
 * bs4 -- BeautifulSoup
+* coverage
+* coverage-badge
 
 #### Programs
 

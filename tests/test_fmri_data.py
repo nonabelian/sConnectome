@@ -1,3 +1,5 @@
+import os
+
 import nose.tools as n
 import numpy as np
 import nibabel as nib
@@ -12,8 +14,9 @@ from get_message import get_message
 
 
 def testfMRIExperimentData():
-    dirs = ['data/sub']
-    fed = fMRIExperimentData(dirs, working_directory='data/')
+    dirs = [os.path.join('tests', 'data', 'sub')]
+    wd = os.path.join('tests', 'data')
+    fed = fMRIExperimentData(dirs, working_directory=wd)
 
     exp = 1
     act = len(fed.subject_fmri_data)
@@ -27,13 +30,15 @@ def testfMRIExperimentData():
 
 
 def test_fMRISubjectData():
-    fsd = fMRISubjectData('data/sub/', working_directory='data/')
+    d = os.path.join('tests', 'data', 'sub')
+    wd = os.path.join('tests', 'data')
+    fsd = fMRISubjectData(d, working_directory=wd)
 
-    exp = 'data/sub/'
+    exp = os.path.join('tests', 'data', 'sub')
     act = fsd.directory
     n.assert_equal(exp, act, msg=get_message('Directory', exp, act))
 
-    exp = 'data/MNI/sub'
+    exp = os.path.join('tests', 'data', 'MNI', 'sub')
     act = fsd.working_directory
     n.assert_equal(exp, act, msg=get_message('Working Directory', exp, act))
 
@@ -51,26 +56,31 @@ def test_fMRISubjectData():
 
 
 def test_get_subject_name():
-    fsd = fMRISubjectData('data/sub/', working_directory='data/')
+    d = os.path.join('tests', 'data', 'sub')
+    wd = os.path.join('tests', 'data')
+    fsd = fMRISubjectData(d, working_directory=wd)
 
     exp = 'sub-name'
-    act = fsd.get_subject_name(directory='tmp/dir.name/sub-name/')
+    d = os.path.join('tmp', 'dir.name', 'sub-name')
+    act = fsd.get_subject_name(directory=d)
     n.assert_equal(exp, act, msg=get_message('Getting Subject Name 1', exp, act))
 
     exp = 'sub-name'
-    act = fsd.get_subject_name(directory='tmp/dir.name/sub-name')
+    d = os.path.join('tmp', 'dir.name', 'sub-name')
+    act = fsd.get_subject_name(directory=d)
     n.assert_equal(exp, act, msg=get_message('Getting Subject Name 2', exp, act))
 
 
 def test_fMRITaskData():
-    ftd = fMRITaskData('data/sub/model/task1.feat/',
-                       working_directory='data/MNI/sub/')
+    d = os.path.join('tests', 'data', 'sub', 'model', 'task1.feat')
+    wd = os.path.join('tests', 'data', 'MNI', 'sub')
+    ftd = fMRITaskData(d, working_directory=wd)
 
-    exp = 'data/sub/model/task1.feat/'
+    exp = os.path.join('tests', 'data', 'sub', 'model', 'task1.feat')
     act = ftd.directory
     n.assert_equal(exp, act, msg=get_message('Directory', exp, act))
 
-    exp = 'data/MNI/sub/'
+    exp = os.path.join('tests', 'data', 'MNI', 'sub')
     act = ftd.working_directory
     n.assert_equal(exp, act, msg=get_message('Working Directory', exp, act))
 
@@ -136,22 +146,27 @@ def test_fMRITaskData():
 
 
 def test_get_task_name():
-    ftd = fMRITaskData('data/sub/model/task1.feat/',
-                       working_directory='data/MNI/sub/')
+    d = os.path.join('tests', 'data', 'sub', 'model', 'task1.feat')
+    wd = os.path.join('tests', 'data', 'MNI', 'sub')
+    ftd = fMRITaskData(d, working_directory=wd)
 
     exp = 'task1'
+    d = os.path.join('tmp', 'dir.name', 'task1')
     act = ftd.get_task_name(directory='tmp/dir.name/task1/')
     n.assert_equal(exp, act, msg=get_message('Getting Subject Name 1', exp,
                    act))
 
     exp = 'task1'
+    d = os.path.join('tmp', 'dir.name', 'task1.foo')
     act = ftd.get_task_name(directory='tmp/dir.name/task1.foo')
     n.assert_equal(exp, act, msg=get_message('Getting Subject Name 2', exp,
                    act))
 
 
 def test_generate_mni_threaded():
-    fsd = fMRISubjectData('data/sub/', working_directory='data/')
+    d = os.path.join('tests', 'data', 'sub')
+    wd = os.path.join('tests', 'data')
+    fsd = fMRISubjectData(d, working_directory=wd)
 
     generate_mni_threaded(fsd)
 
@@ -170,8 +185,9 @@ def test_generate_mni_parallel():
     generate_mni_parallel(fed)
 
 def test_load_mni():
-    ftd = fMRITaskData('data/sub/model/task1.feat/',
-                       working_directory='data/MNI/sub/')
+    d = os.path.join('tests', 'data', 'sub', 'model', 'task1.feat')
+    wd = os.path.join('tests', 'data', 'MNI', 'sub')
+    ftd = fMRITaskData(d, working_directory=wd)
 
     ftd.load_mni()
 

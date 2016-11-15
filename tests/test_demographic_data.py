@@ -1,3 +1,5 @@
+import os
+
 import nose.tools as n
 import pandas as pd
 
@@ -7,7 +9,7 @@ from src.process_data import demographic_data as dd
 from get_message import get_message
 
 def test_DemographicData():
-    filename = './data/test_dd.txt'
+    filename = os.path.join('tests', 'data', 'test_dd.txt')
     target = 'target'
     columns = ['b', 'c']
     sep = '\t'
@@ -36,21 +38,21 @@ def test_DemographicData():
 
 
 def test_load_demographic_data():
-    filename = './data/test_dd.txt'
+    filename = os.path.join('tests', 'data', 'test_dd.txt')
     target = 'target'
     columns = ['b', 'c']
     sep = '\t'
     test_dd = dd.DemographicData(filename, target, columns=columns, sep=sep)
 
 def test_process():
-    filename = './data/test_dd.txt'
+    filename = os.path.join('tests', 'data', 'test_dd.txt')
     target = 'target'
     columns = ['b', 'c']
     sep = '\t'
     test_dd = dd.DemographicData(filename, target, columns=columns, sep=sep)
 
 def test_make_categoricals():
-    filename = './data/test_dd.txt'
+    filename = os.path.join('tests', 'data', 'test_dd.txt')
     target = 'target'
     columns = ['b', 'c']
     sep = '\t'
@@ -59,7 +61,7 @@ def test_make_categoricals():
 def test_group():
     ''' Grouping the prediction 'target'
     '''
-    filename = './data/test_dd.txt'
+    filename = os.path.join('tests', 'data', 'test_dd.txt')
     target = 'target'
     columns = ['b', 'c']
     sep = '\t'
@@ -68,7 +70,7 @@ def test_group():
 def test_get_XY():
     ''' Retrieve X, Y data matrices
     '''
-    filename = './data/test_dd.txt'
+    filename = os.path.join('tests', 'data', 'test_dd.txt')
     target = 'target'
     columns = ['b', 'c']
     sep = '\t'

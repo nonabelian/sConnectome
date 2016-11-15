@@ -21,8 +21,8 @@ from get_message import get_message
 
 def testGraphExperimentData():
     # Setup a GraphExperimentData class
-    dirs = [os.path.join('data', 'sub')]
-    wd = 'data'
+    dirs = [os.path.join('tests', 'data', 'sub')]
+    wd = os.path.join('tests', 'data')
 
     fed = fMRIExperimentData(dirs, working_directory=wd)
 
@@ -49,8 +49,8 @@ def testGraphExperimentData():
 
 def testGraphSubjectData():
     # Setup a GraphSubjectData class:
-    d = os.path.join('data', 'sub')
-    wd = 'data'
+    d = os.path.join('tests', 'data', 'sub')
+    wd = os.path.join('tests', 'data')
 
     fsd = fMRISubjectData(d, working_directory=wd)
 
@@ -90,8 +90,8 @@ def test_cov_to_mat():
 
 def test_generate_graph_threaded():
     # Setup a GraphSubjectData class:
-    d = os.path.join('data', 'sub')
-    wd = 'data'
+    d = os.path.join('tests', 'data', 'sub')
+    wd = os.path.join('tests', 'data')
 
     fsd = fMRISubjectData(d, working_directory=wd)
 
@@ -119,8 +119,8 @@ def test_generate_graph_threaded():
 
 def test_generate_graphs_parallel():
     # Setup a GraphExperimentData class
-    dirs = [os.path.join('data', 'sub')]
-    wd = 'data'
+    dirs = [os.path.join('tests', 'data', 'sub')]
+    wd = os.path.join('tests', 'data')
 
     fed = fMRIExperimentData(dirs, working_directory=wd)
 
@@ -151,8 +151,8 @@ def test_generate_graphs_parallel():
 
 def test_save_graph_data():
     # Setup the GraphExperimentData class
-    dirs = [os.path.join('data', 'sub')]
-    wd = 'data'
+    dirs = [os.path.join('tests', 'data', 'sub')]
+    wd = os.path.join('tests', 'data')
     fed = fMRIExperimentData(dirs, working_directory=wd)
     generate_mni_parallel(fed)
     fed.load_subject_mni()
@@ -168,10 +168,10 @@ def test_save_graph_data():
     # Generate the graph data:
     for name, gd in ged.graph_data.iteritems():
         gd.calculate_graph_properties()
-        save_directory = os.path.join('data', 'graphs')
+        save_directory = os.path.join('tests', 'data', 'graphs')
         gd.save_graph_data(save_directory=save_directory)
 
-    save_file = os.path.join('data', 'graphs', 'sub_graph_data.pkl')
+    save_file = os.path.join('tests', 'data', 'graphs', 'sub_graph_data.pkl')
 
     exp = True
     act = os.path.exists(save_file)
@@ -180,8 +180,8 @@ def test_save_graph_data():
 
 def test_load_graph_data():
     # Setup the GraphExperimentData class
-    dirs = [os.path.join('data', 'sub')]
-    wd = 'data'
+    dirs = [os.path.join('tests', 'data', 'sub')]
+    wd = os.path.join('tests', 'data')
     fed = fMRIExperimentData(dirs, working_directory=wd)
     generate_mni_parallel(fed)
     fed.load_subject_mni()

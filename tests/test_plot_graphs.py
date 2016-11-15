@@ -13,8 +13,8 @@ from get_message import get_message
 
 
 def test_plot_connectome2d():
-    dirs = [os.path.join('data', 'sub')]
-    wd = 'data'
+    dirs = [os.path.join('tests', 'data', 'sub')]
+    wd = os.path.join('tests', 'data')
     fed = fMRIExperimentData(dirs, working_directory=wd)
 
     # Load the MNI files into the class
@@ -30,7 +30,7 @@ def test_plot_connectome2d():
 
     ged.load_graph_data()
 
-    image_path = os.path.join('data', 'images')
+    image_path = os.path.join('tests', 'data', 'images')
 
     if not os.path.exists(image_path):
         os.makedirs(image_path)
@@ -43,14 +43,14 @@ def test_plot_connectome2d():
 
 
 def test_plot_filtered_mni():
-    dirs = [os.path.join('data', 'sub')]
-    wd = 'data'
+    dirs = [os.path.join('tests', 'data', 'sub')]
+    wd = os.path.join('tests', 'data')
     fed = fMRIExperimentData(dirs, working_directory=wd)
 
     # Load the MNI files into the class
     fed.load_subject_mni()
 
-    image_path = os.path.join('data', 'images')
+    image_path = os.path.join('tests', 'data', 'images')
 
     if not os.path.exists(image_path):
         os.makedirs(image_path)
