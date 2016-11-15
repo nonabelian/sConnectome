@@ -170,6 +170,7 @@ To run the web app:
 * Flask, Jinja2 -- Web app framwork.
 * Plot.ly -- Web visualization.
 * bs4 -- BeautifulSoup
+* colorlover
 * coverage
 * coverage-badge
 

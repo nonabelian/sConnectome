@@ -1,7 +1,4 @@
 import pandas as pd
-import numpy as np
-import scipy.stats as scs
-import matplotlib.pyplot as plt
 
 from src.process_data.demographic_data import DemographicData
 import src.eda.plot_eda as pe
