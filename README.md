@@ -43,14 +43,14 @@ compute correlations between a manageable number of regions. This matrix
 can be thought of as a 'connectome', one for each subject.
 Below is a plot of the connectome for subject 'sub001'.
 The boldness of the red lines indicates the strength
-of correlation, whereas the blue lines indicate anticorrelation.
+of correlation, whereas the blue lines indicate anti-correlation.
 
 ![sub001 connectome](images/models/sub001-connectome.png)
 
 I then used NetworkX to extract graph features from all subject connectomes,
 paired with the labeled data from 'demographics.txt', to be piped into
 Scikit-Learn, for classification.  I classified based on schizophrenic/healthy,
-in addition to schizophrenic/(healthy)schizophrenic's sibling/healthy.
+in addition to schizophrenic/(healthy) schizophrenic's sibling/healthy.
 
 The model is not predictive at this stage, however, for demonstration
 purposes, we can ask "What are the important graph features?"  This can
@@ -67,7 +67,7 @@ understanding, diagnosing, and treating schizophrenia.
 For future analysis, I am looking forward to performing signal/noise analysis,
 and other preprocessing, to see if I can make the model predictive.
 
-Finally, I have compiled these results into an interactable web application:
+Finally, I have compiled these results into an interactive web application:
 [sConnectome](http://ec2-54-146-103-117.compute-1.amazonaws.com:8080)
 
 ## Data

@@ -38,7 +38,7 @@ nonlinear warping transformations into standard MNI coordinate space.
 I then used an MSDL atlas to segment the brain into regions, via Nilearn's
 NiftiMapsMasker.  I computed covariance and sparse inverse covariance using
 GraphSparseCovarianceCV, as a method to examine the functional
-connectome.  This resulted in a graph network for eash subject, aggregated
+connectome.  This resulted in a graph network for each subject, aggregated
 over all tasks.
 
 #### Modeling
@@ -59,6 +59,6 @@ data, considering a few cases:
 2. Multiclass: Three classes {'SCZ', 'SCZ-SIB', 'CON', 'CON'}.
 3. Multiclass: Four classes {'SCZ', 'SCZ-SIB', 'CON', 'CON-SIB'}.
 
-The model is no predictive, yet.  I suspect that
+The model is not predictive, yet.  I suspect that
 working on fMRI preprocessing and signal/noise analysis might yield a
 predictive model.  This would be very interesting!
