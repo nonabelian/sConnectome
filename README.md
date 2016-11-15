@@ -2,7 +2,7 @@
 
 [![TeamCity CodeBetter](https://img.shields.io/teamcity/codebetter/bt428.svg)]()
 ![Alt text](https://raw.githubusercontent.com/nonabelian/sConnectome/master/images/coverage-badge.svg) <img src="https://raw.githubusercontent.com/nonabelian/sConnectome/master/images/coverage-badge.svg">
-[![Coverage](https://rawgithub.com/nonabelian/sConnectome/blob/master/images/coverage-badge.svg)]()
+[![Coverage](https://cdn.rawgit.com/nonabelian/sConnectome/master/images/coverage-badge.svg)]()
 
 # Connectomes of Schizophrenic and Healthy Individuals
 
