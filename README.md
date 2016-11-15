@@ -3,13 +3,13 @@
 [![TeamCity CodeBetter](https://img.shields.io/teamcity/codebetter/bt428.svg)]()
 [![Coverage](https://cdn.rawgit.com/nonabelian/sConnectome/master/images/coverage-badge.svg)]()
 
-# Connectomes of Schizophrenic and Healthy Individuals
+# Brain Connectivity of Schizophrenic Individuals
 
 I investigate an fMRI dataset comparing healthy individuals to those
 diagnosed with schizophrenia. The current belief is that connectivity between
-functional components is significantly different in individuals with (or
-susceptible to) schizophrenia[1]. There are two main motivations for this
-project.
+functional components, known as a 'connectome', is significantly different in
+individuals with (or susceptible to) schizophrenia[1]. There are two main
+motivations for this project.
 
 The first is to look for functioning neurological processes that may
 indicate illness or susceptibility to illness -- schizophrenia, in our case
