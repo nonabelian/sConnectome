@@ -23,7 +23,7 @@ clustering of individuals.
 The second motivation is to create data-driven visualization and
 presentation of such neuroscience results. This is demonstrated in the
 present report and the companion web application
-[sConnectome](http://ec2-54-146-103-117.compute-1.amazonaws.com:8080).
+[sConnectome](http://sconnectome-env.krpdv2mnyg.us-east-1.elasticbeanstalk.com/).
 
 ![High Resolution fMRI](images/connectome3d.png)
 
@@ -68,7 +68,7 @@ For future analysis, I am looking forward to performing signal/noise analysis,
 and other preprocessing, to see if I can make the model predictive.
 
 Finally, I have compiled these results into an interactive web application:
-[sConnectome](http://ec2-54-146-103-117.compute-1.amazonaws.com:8080)
+[sConnectome](http://sconnectome-env.krpdv2mnyg.us-east-1.elasticbeanstalk.com/)
 
 ## Data
 
@@ -149,10 +149,16 @@ Once the 'data/graphs' and 'data/dataframes' are created, run
 	python run_graph_model.py
 ```
 
-To run the web app:
+To run the web app locally:
 ```
 	python run_web_app.py
 ```
+
+NOTE: To deploy on ElasticBeanstalk, you must save the denerated div and
+scripts, and load them.  EB doesn't like importing plotly.  Once this is
+done you can follow the instructions for installing a Flask webapp. However,
+you might need to log into the server to install the python packages -- pip
+install doesn't always work through the 'requirements.txt' file.
 
 ### Requirements
 
@@ -167,6 +173,7 @@ To run the web app:
 * Nipype -- Interface with existing neuroscience software (e.g. SPM, FSL).
 * Matplotlib -- Generic 2D plotting and animations.
 * Mayavi -- 2D/3D visualization.
+* AWS EB-CLI (awsebcli) -- ElasticBeanstalk
 * Flask, Jinja2 -- Web app framwork.
 * Plot.ly -- Web visualization.
 * bs4 -- BeautifulSoup
