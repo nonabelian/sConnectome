@@ -154,7 +154,7 @@ To run the web app locally:
 	python run_web_app.py
 ```
 
-NOTE: To deploy on ElasticBeanstalk, you must save the denerated div and
+NOTE: To deploy on ElasticBeanstalk, you must save the generated div and
 scripts, and load them.  EB doesn't like importing plotly.  Once this is
 done you can follow the instructions for installing a Flask webapp. However,
 you might need to log into the server to install the python packages -- pip
@@ -174,7 +174,7 @@ install doesn't always work through the 'requirements.txt' file.
 * Matplotlib -- Generic 2D plotting and animations.
 * Mayavi -- 2D/3D visualization.
 * AWS EB-CLI (awsebcli) -- ElasticBeanstalk
-* Flask, Jinja2 -- Web app framwork.
+* Flask, Jinja2 -- Web app framework.
 * Plot.ly -- Web visualization.
 * bs4 -- BeautifulSoup
 * colorlover
