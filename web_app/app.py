@@ -5,7 +5,7 @@ import numpy as np
 from nilearn import datasets
 from flask import Flask
 from flask import render_template
-app = Flask(__name__)
+application = app = Flask(__name__)
 
 from .context import src
 from src.process_data.demographic_data import DemographicData
