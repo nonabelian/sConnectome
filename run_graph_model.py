@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+from nilearn import datasets
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 
@@ -19,6 +20,9 @@ if __name__ == '__main__':
     model_file = 'graph_model.pkl'
     dataframe_directory = os.path.join('data', 'dataframes')
     dataframe_file = 'graph_dataframe.pkl'
+
+    atlas_coords_file = os.path.join('data', 'models', 'atlas_coords')
+    atlas_names_file = os.path.join('data', 'models', 'atlas_names')
 
     names, graphs = load_graphs(graph_directory)
 
@@ -60,6 +64,15 @@ if __name__ == '__main__':
 
     # Pickle the DataFrame
     gbc_gm.save_data(dataframe_directory, dataframe_file)
+
+
+    # Save MSDL Atlas:
+    msdl_atlas_dataset = datasets.fetch_atlas_msdl()
+    np_coords = np.array(msdl_atlas_dataset['region_coords'])
+    np_names = np.array(msdl_atlas_dataset['labels'])
+
+    np.save(atlas_coords_file, np_coords)
+    np.save(atlas_names_file, np_names)
 
     # Plot
     save_image = os.path.join('images', 'models',
