@@ -2,20 +2,25 @@ import os
 import cPickle as pickle
 
 import numpy as np
-from nilearn import datasets
+#from nilearn import datasets
 from flask import Flask
 from flask import render_template
 application = app = Flask(__name__)
 
-from .context import src
+from context import src
 from src.process_data.demographic_data import DemographicData
 import src.visualization.web_plots as wp
 
-graph_data = os.path.join('data', 'dataframes', 'graph_dataframe.pkl')
-graph_model = os.path.join('data', 'models', 'graph_model.pkl')
-meta_data = os.path.join('data', 'dataframes', 'meta_dataframe.pkl')
-meta_model = os.path.join('data', 'models', 'meta_model.pkl')
-sub001_graph_file = os.path.join('data','graphs','sub001_graph_data.pkl')
+WEB_ROOT = os.path.dirname(__file__)
+DATA_DIR = os.path.join(WEB_ROOT, os.pardir, 'data')
+
+graph_data = os.path.join(DATA_DIR, 'dataframes', 'graph_dataframe.pkl')
+graph_model = os.path.join(DATA_DIR, 'models', 'graph_model.pkl')
+meta_data = os.path.join(DATA_DIR, 'dataframes', 'meta_dataframe.pkl')
+meta_model = os.path.join(DATA_DIR, 'models', 'meta_model.pkl')
+sub001_graph_file = os.path.join(DATA_DIR,'graphs','sub001_graph_data.pkl')
+ATLAS_COORDS_FILE = os.path.join(DATA_DIR, 'models', 'atlas_coords.npy')
+ATLAS_NAMES_FILE = os.path.join(DATA_DIR, 'models', 'atlas_names.npy')
 
 with open(graph_data) as f:
     GRAPH_DATA = pickle.load(f)
@@ -49,9 +54,10 @@ def index():
 
 
 def get_region_coords():
-    msdl_atlas_dataset = datasets.fetch_atlas_msdl()
-    np_coords = np.array(msdl_atlas_dataset['region_coords'])
-    names = msdl_atlas_dataset['labels']
+#    msdl_atlas_dataset = datasets.fetch_atlas_msdl()
+#    np_coords = np.array(msdl_atlas_dataset['region_coords'])
+    np_coords = np.load(ATLAS_COORDS_FILE)
+    names = np.load(ATLAS_NAMES_FILE)
 
     return names, list(np_coords)
 
